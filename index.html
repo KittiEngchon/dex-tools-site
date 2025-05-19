@@ -1,76 +1,94 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="th">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>DEX Tools</title>
-  <script src="dexswap-v4.js" defer></script>
+  <title>DEX Tools - Swap</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun&display=swap" rel="stylesheet">
   <style>
     body {
-      background: radial-gradient(ellipse at top left, #ff8ba7, #ff3c75);
-      font-family: 'Segoe UI', sans-serif;
+      font-family: 'Sarabun', sans-serif;
+      background: linear-gradient(to bottom right, #2a001f, #ff95c8);
       color: white;
       text-align: center;
-      padding: 2rem;
-      animation: pulse 8s infinite ease-in-out;
+      padding: 1rem;
+      transition: background 0.5s;
+    }
+    .dark-mode {
+      background: #0d0d0d;
+      color: #fff;
+    }
+    .glow-button {
+      background: #ff4d9a;
+      color: white;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 2rem;
+      box-shadow: 0 0 15px #ff4d9a, 0 0 40px #ff4d9a inset;
+      cursor: pointer;
+      animation: pulse 2s infinite;
     }
     @keyframes pulse {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
+      0% { box-shadow: 0 0 10px #ff4d9a, 0 0 20px #ff4d9a inset; }
+      50% { box-shadow: 0 0 20px #ff4d9a, 0 0 50px #ff4d9a inset; }
+      100% { box-shadow: 0 0 10px #ff4d9a, 0 0 20px #ff4d9a inset; }
     }
-    select, input, button {
-      margin: 0.5rem;
-      padding: 0.6rem;
-      border-radius: 10px;
+    .floating-btn {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 999;
+    }
+    select, input {
+      padding: 10px;
+      border-radius: 8px;
       border: none;
-      box-shadow: 0 0 12px rgba(255, 255, 255, 0.4);
+      margin: 5px;
     }
-    button {
-      background-color: #ff4b91;
-      color: white;
-      font-weight: bold;
-      cursor: pointer;
-    }
-    button:hover {
-      background-color: #ff005c;
+    .history {
+      margin-top: 2rem;
+      font-size: 0.9rem;
     }
   </style>
 </head>
 <body>
-  <h1>🚀 DEX Token Swap</h1>
-  <button id="connectButton">Connect Wallet</button><br/>
-  
-  <label for="chainSelect">Chain:</label>
-  <select id="chainSelect">
-    <option value="polygon">Polygon</option>
-    <option value="bsc">BSC</option>
-    <option value="arbitrum">Arbitrum</option>
-    <option value="base">Base</option>
-  </select><br/>
 
-  <label for="fromToken">From Token:</label>
+  <h1>DEX Tools</h1>
+  <button id="connectBtn" class="glow-button">🔗 Connect Wallet</button>
+  <br/><br/>
+
+  <label>จาก:</label>
   <select id="fromToken">
-    <option value="MATIC">MATIC</option>
+    <option value="MATIC">POL (MATIC)</option>
     <option value="USDC">USDC</option>
     <option value="DAI">DAI</option>
-    <option value="CUSTOM">-- Custom (ใส่ Contract Address) --</option>
   </select>
-  <input id="fromCustom" type="text" placeholder="Contract Address" style="display:none"/><br/>
 
-  <label for="toToken">To Token:</label>
+  <label>→ ไปยัง:</label>
   <select id="toToken">
     <option value="USDC">USDC</option>
-    <option value="MATIC">MATIC</option>
+    <option value="MATIC">POL (MATIC)</option>
     <option value="DAI">DAI</option>
-    <option value="CUSTOM">-- Custom (ใส่ Contract Address) --</option>
   </select>
-  <input id="toCustom" type="text" placeholder="Contract Address" style="display:none"/><br/>
+  <br/><br/>
 
-  <input id="amount" type="number" placeholder="Amount" /><br/>
+  <input type="number" id="amount" placeholder="จำนวนเหรียญ" />
+  <input type="number" id="slippage" placeholder="Slippage %" value="1" />
+  <br/><br/>
 
-  <button id="swapButton">Swap</button><br/>
+  <div id="priceEstimate">💱 กำลังคำนวณ...</div>
+  <br/>
 
-  <p id="estimate"></p>
+  <button id="swapBtn" class="glow-button floating-btn">🔄 Swap</button>
+
+  <div class="history">
+    <h3>ประวัติการ Swap</h3>
+    <ul id="swapHistory"></ul>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script src="https://kittiengchon.github.io/dex-tools-site/dexswap-v3.js"></script>
+
 </body>
 </html>
