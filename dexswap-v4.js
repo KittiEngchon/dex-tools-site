@@ -77,13 +77,15 @@ const CHAINS = {
 };
 
 async function connectWallet() {
-  if (!window.ethereum) return alert('กรุณาติดตั้ง MetaMask');
+  if (!window.ethereum) {
+    alert('กรุณาติดตั้ง MetaMask');
+    return;
+  }
   provider = new ethers.providers.Web3Provider(window.ethereum);
   await provider.send('eth_requestAccounts', []);
   signer = provider.getSigner();
   const address = await signer.getAddress();
   document.getElementById('connectBtn').innerText = '✅ ' + address.slice(0, 6) + '...' + address.slice(-4);
-  switchChain(selectedChain);
 }
 
 async function switchChain(chainKey) {
