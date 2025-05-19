@@ -12,11 +12,6 @@
       color: white;
       text-align: center;
       padding: 1rem;
-      transition: background 0.5s;
-    }
-    .dark-mode {
-      background: #0d0d0d;
-      color: #fff;
     }
     .glow-button {
       background: #ff4d9a;
@@ -53,23 +48,28 @@
 </head>
 <body>
 
-  <h1>DEX Tools</h1>
+  <h1>🚀 DEX Tools</h1>
+
   <button id="connectBtn" class="glow-button">🔗 Connect Wallet</button>
   <br/><br/>
 
-  <label>จาก:</label>
-  <select id="fromToken">
-    <option value="MATIC">POL (MATIC)</option>
-    <option value="USDC">USDC</option>
-    <option value="DAI">DAI</option>
+  <label>เลือก Chain:</label>
+  <select id="chainSelector">
+    <option value="polygon">Polygon</option>
+    <option value="bsc">Binance Smart Chain</option>
+    <option value="ethereum">Ethereum</option>
+    <option value="arbitrum">Arbitrum</option>
+    <option value="base">Base</option>
+    <option value="linea">Linea</option>
+    <option value="pulsechain">PulseChain</option>
   </select>
+  <br/><br/>
+
+  <label>จาก:</label>
+  <select id="fromToken"></select>
 
   <label>→ ไปยัง:</label>
-  <select id="toToken">
-    <option value="USDC">USDC</option>
-    <option value="MATIC">POL (MATIC)</option>
-    <option value="DAI">DAI</option>
-  </select>
+  <select id="toToken"></select>
   <br/><br/>
 
   <input type="number" id="amount" placeholder="จำนวนเหรียญ" />
@@ -86,9 +86,11 @@
     <ul id="swapHistory"></ul>
   </div>
 
+  <!-- 🔧 Libraries -->
   <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-  <script src="https://kittiengchon.github.io/dex-tools-site/dexswap-v4.js"></script>
 
+  <!-- ✅ ใส่ defer เพื่อให้ DOM โหลดก่อน -->
+  <script src="https://kittiengchon.github.io/dex-tools-site/dexswap-v4.js" defer></script>
 </body>
 </html>
