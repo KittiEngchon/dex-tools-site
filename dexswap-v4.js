@@ -93,9 +93,10 @@ async function switchChain(chainKey) {
   selectedChain = chainKey;
   try {
     await window.ethereum.request({
-      method: 'wallet_switchEthereumChain',
-      params: [{ chainId: chain.chainId }]
-    });
+  method: 'wallet_switchEthereumChain',
+  params: [{ chainId: '0x89' }] // Polygon
+});
+
   } catch (e) {
     alert('ไม่สามารถเปลี่ยน Chain ได้');
   }
