@@ -1,4 +1,4 @@
-// dexswap-v3.js (เวอร์ชันเต็ม พร้อม UI เพิ่ม Token + ตรวจ Balance + Gas info)
+// dexswap-v3.js (Google Sites Compatible)
 
 let tokens = {
   MATIC: {
@@ -125,6 +125,9 @@ async function swapTokens() {
 }
 
 window.onload = () => {
+  const container = document.getElementById("dex-box");
+  if (!container) return;
+
   const html = `
     <h3>DEX Swap (Polygon)</h3>
     <div id="walletStatus">🔴 Not Connected</div>
@@ -147,11 +150,6 @@ window.onload = () => {
     <button onclick="swapTokens()" style="background:green;color:white;padding:10px 20px;border:none;border-radius:8px;">Swap</button>
   `;
 
-  const box = document.createElement("div");
-  box.style = "padding:20px;border:1px solid #ccc;max-width:500px;margin:auto;border-radius:12px";
-  box.innerHTML = html;
-  document.body.appendChild(box);
-
+  container.innerHTML = html;
   renderDropdownOptions();
 };
-Add v3 Swap Script with token import & gas fee
