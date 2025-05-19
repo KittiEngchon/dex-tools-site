@@ -44,6 +44,11 @@
       margin-top: 2rem;
       font-size: 0.9rem;
     }
+    #loading {
+      display: none;
+      font-size: 1.5rem;
+      color: #fff;
+    }
   </style>
 </head>
 <body>
@@ -51,6 +56,10 @@
   <h1>🚀 DEX Tools</h1>
 
   <button id="connectBtn" class="glow-button">🔗 Connect Wallet</button>
+  <br/><br/>
+
+  <label>เลือกภาษา:</label>
+  <button id="languageToggle" class="glow-button">เปลี่ยนเป็นภาษาอังกฤษ</button>
   <br/><br/>
 
   <label>เลือก Chain:</label>
@@ -81,6 +90,8 @@
 
   <button id="swapBtn" class="glow-button floating-btn">🔄 Swap</button>
 
+  <div id="loading">⏳ โปรดรอสักครู่...</div>
+
   <div class="history">
     <h3>ประวัติการ Swap</h3>
     <ul id="swapHistory"></ul>
@@ -92,5 +103,46 @@
 
   <!-- ✅ ใส่ defer เพื่อให้ DOM โหลดก่อน -->
   <script src="https://kittiengchon.github.io/dex-tools-site/dexswap-v4.js" defer></script>
+
+  <script>
+    let isThai = true; // Flag for language toggle
+    const languageStrings = {
+      thai: {
+        connectWallet: "🔗 เชื่อมต่อกระเป๋าเงิน",
+        languageToggle: "เปลี่ยนเป็นภาษาอังกฤษ",
+        priceEstimate: "💱 กำลังคำนวณ...",
+        swapSuccess: "✅ Swap สำเร็จ!",
+        swapFail: "❌ Swap ล้มเหลว: ",
+        waitConfirmation: "⏳ รอการยืนยัน...",
+        cannotEstimatePrice: "⛔ ไม่สามารถประเมินราคา",
+        historyTitle: "ประวัติการ Swap"
+      },
+      english: {
+        connectWallet: "🔗 Connect Wallet",
+        languageToggle: "Switch to Thai",
+        priceEstimate: "💱 Estimating price...",
+        swapSuccess: "✅ Swap Successful!",
+        swapFail: "❌ Swap Failed: ",
+        waitConfirmation: "⏳ Waiting for confirmation...",
+        cannotEstimatePrice: "⛔ Unable to estimate price",
+        historyTitle: "Swap History"
+      }
+    };
+
+    // Switch language function
+    function toggleLanguage() {
+      isThai = !isThai;
+      const lang = isThai ? 'thai' : 'english';
+      document.getElementById('connectBtn').innerText = languageStrings[lang].connectWallet;
+      document.getElementById('languageToggle').innerText = languageStrings[lang].languageToggle;
+      document.getElementById('priceEstimate').innerText = languageStrings[lang].priceEstimate;
+      document.getElementById('swapBtn').innerText = languageStrings[lang].swapBtn;
+      document.querySelector('.history h3').innerText = languageStrings[lang].historyTitle;
+    }
+
+    // Call language toggle
+    document.getElementById('languageToggle').addEventListener('click', toggleLanguage);
+  </script>
+
 </body>
 </html>
