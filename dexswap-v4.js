@@ -82,7 +82,7 @@ async function connectWallet() {
     return;
   }
   provider = new ethers.providers.Web3Provider(window.ethereum);
-  await provider.send('eth_requestAccounts', []);
+  await window.ethereum.request({ method: 'eth_requestAccounts' });
   signer = provider.getSigner();
   const address = await signer.getAddress();
   document.getElementById('connectBtn').innerText = '✅ ' + address.slice(0, 6) + '...' + address.slice(-4);
