@@ -49,6 +49,12 @@
       font-size: 1.5rem;
       color: #fff;
     }
+    img.token-logo {
+      width: 20px;
+      height: 20px;
+      margin-right: 8px;
+      vertical-align: middle;
+    }
   </style>
 </head>
 <body>
@@ -105,43 +111,80 @@
   <script src="https://kittiengchon.github.io/dex-tools-site/dexswap-v4.js" defer></script>
 
   <script>
-    let isThai = true; // Flag for language toggle
-    const languageStrings = {
-      thai: {
-        connectWallet: "🔗 เชื่อมต่อกระเป๋าเงิน",
-        languageToggle: "เปลี่ยนเป็นภาษาอังกฤษ",
-        priceEstimate: "💱 กำลังคำนวณ...",
-        swapSuccess: "✅ Swap สำเร็จ!",
-        swapFail: "❌ Swap ล้มเหลว: ",
-        waitConfirmation: "⏳ รอการยืนยัน...",
-        cannotEstimatePrice: "⛔ ไม่สามารถประเมินราคา",
-        historyTitle: "ประวัติการ Swap"
+    const tokenLogos = {
+      MATIC: 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/polygon/info/logo.png',
+      USDC: 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48/logo.png',
+      DAI: 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0x6b175474e89094c44da98b954eedeac495271d0f/logo.png',
+    };
+
+    const CHAINS = {
+      polygon: {
+        chainId: '0x89',
+        name: 'Polygon',
+        rpc: 'https://polygon-rpc.com',
+        tokenList: [
+          { symbol: 'MATIC', address: '0x0000000000000000000000000000000000001010', decimals: 18 },
+          { symbol: 'USDC', address: '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174', decimals: 6 }
+        ],
+        swapApi: 'https://polygon.api.0x.org'
       },
-      english: {
-        connectWallet: "🔗 Connect Wallet",
-        languageToggle: "Switch to Thai",
-        priceEstimate: "💱 Estimating price...",
-        swapSuccess: "✅ Swap Successful!",
-        swapFail: "❌ Swap Failed: ",
-        waitConfirmation: "⏳ Waiting for confirmation...",
-        cannotEstimatePrice: "⛔ Unable to estimate price",
-        historyTitle: "Swap History"
+      bsc: {
+        chainId: '0x38',
+        name: 'Binance Smart Chain',
+        rpc: 'https://bsc-dataseed.binance.org',
+        tokenList: [
+          { symbol: 'BNB', address: '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee', decimals: 18 },
+          { symbol: 'USDT', address: '0x55d398326f99059fF775485246999027B3197955', decimals: 18 }
+        ],
+        swapApi: 'https://bsc.api.0x.org'
       }
     };
 
-    // Switch language function
-    function toggleLanguage() {
-      isThai = !isThai;
-      const lang = isThai ? 'thai' : 'english';
-      document.getElementById('connectBtn').innerText = languageStrings[lang].connectWallet;
-      document.getElementById('languageToggle').innerText = languageStrings[lang].languageToggle;
-      document.getElementById('priceEstimate').innerText = languageStrings[lang].priceEstimate;
-      document.getElementById('swapBtn').innerText = languageStrings[lang].swapBtn;
-      document.querySelector('.history h3').innerText = languageStrings[lang].historyTitle;
+    // สร้าง Dropdown Token พร้อม Logo
+    function updateTokenDropdowns(chainKey) {
+      const list = CHAINS[chainKey].tokenList;
+      const fromSel = document.getElementById('fromToken');
+      const toSel = document.getElementById('toToken');
+      fromSel.innerHTML = '';
+      toSel.innerHTML = '';
+      list.forEach(token => {
+        const optionFrom = document.createElement('option');
+        optionFrom.value = token.address;
+        optionFrom.innerHTML = `<img src="${tokenLogos[token.symbol]}" class="token-logo" /> ${token.symbol}`;
+        
+        const optionTo = document.createElement('option');
+        optionTo.value = token.address;
+        optionTo.innerHTML = `<img src="${tokenLogos[token.symbol]}" class="token-logo" /> ${token.symbol}`;
+        
+        fromSel.appendChild(optionFrom);
+        toSel.appendChild(optionTo);
+      });
     }
 
-    // Call language toggle
-    document.getElementById('languageToggle').addEventListener('click', toggleLanguage);
+    // เพิ่มการสลับ Token ในฟังก์ชัน Swap จริง
+    async function executeSwap() {
+      const sellToken = document.getElementById('fromToken').value;
+      const buyToken = document.getElementById('toToken').value;
+      const amount = document.getElementById('amount').value;
+      const slippage = document.getElementById('slippage').value;
+      
+      if (!amount || !sellToken || !buyToken) return;
+
+      const api = CHAINS[selectedChain].swapApi;
+      const url = `${api}/swap/v1/quote?sellToken=${sellToken}&buyToken=${buyToken}&sellAmount=${ethers.utils.parseUnits(amount, 18)}&slippagePercentage=${slippage / 100}`;
+
+      try {
+        const res = await axios.get(url);
+        const tx = await signer.sendTransaction(res.data);
+        alert('⏳ รอการยืนยัน...');
+        await tx.wait();
+        alert('✅ Swap สำเร็จ!');
+      } catch (e) {
+        alert('❌ Swap ล้มเหลว: ' + e.message);
+      }
+    }
+
+    document.getElementById('swapBtn').onclick = executeSwap;
   </script>
 
 </body>
