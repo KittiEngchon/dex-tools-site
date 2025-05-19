@@ -1,11 +1,76 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>DEX Swap Tool</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>DEX Tools</title>
+  <script src="dexswap-v4.js" defer></script>
+  <style>
+    body {
+      background: radial-gradient(ellipse at top left, #ff8ba7, #ff3c75);
+      font-family: 'Segoe UI', sans-serif;
+      color: white;
+      text-align: center;
+      padding: 2rem;
+      animation: pulse 8s infinite ease-in-out;
+    }
+    @keyframes pulse {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    select, input, button {
+      margin: 0.5rem;
+      padding: 0.6rem;
+      border-radius: 10px;
+      border: none;
+      box-shadow: 0 0 12px rgba(255, 255, 255, 0.4);
+    }
+    button {
+      background-color: #ff4b91;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #ff005c;
+    }
+  </style>
 </head>
 <body>
-  <h1>DEX Tools</h1>
-  <p>Script นี้ใช้เชื่อมต่อ Wallet และ Swap Token ผ่าน Polygon โดยใช้ 0x API</p>
-  <p>ใช้ใน Google Sites โดยเรียกไฟล์ <code>dexswap-v2.js</code></p>
+  <h1>🚀 DEX Token Swap</h1>
+  <button id="connectButton">Connect Wallet</button><br/>
+  
+  <label for="chainSelect">Chain:</label>
+  <select id="chainSelect">
+    <option value="polygon">Polygon</option>
+    <option value="bsc">BSC</option>
+    <option value="arbitrum">Arbitrum</option>
+    <option value="base">Base</option>
+  </select><br/>
+
+  <label for="fromToken">From Token:</label>
+  <select id="fromToken">
+    <option value="MATIC">MATIC</option>
+    <option value="USDC">USDC</option>
+    <option value="DAI">DAI</option>
+    <option value="CUSTOM">-- Custom (ใส่ Contract Address) --</option>
+  </select>
+  <input id="fromCustom" type="text" placeholder="Contract Address" style="display:none"/><br/>
+
+  <label for="toToken">To Token:</label>
+  <select id="toToken">
+    <option value="USDC">USDC</option>
+    <option value="MATIC">MATIC</option>
+    <option value="DAI">DAI</option>
+    <option value="CUSTOM">-- Custom (ใส่ Contract Address) --</option>
+  </select>
+  <input id="toCustom" type="text" placeholder="Contract Address" style="display:none"/><br/>
+
+  <input id="amount" type="number" placeholder="Amount" /><br/>
+
+  <button id="swapButton">Swap</button><br/>
+
+  <p id="estimate"></p>
 </body>
 </html>
