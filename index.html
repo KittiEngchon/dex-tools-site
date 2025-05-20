@@ -4,10 +4,10 @@
   <meta charset="UTF-8">
   <title>DEX Swap</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
+
   <!-- ฟอนต์ -->
   <link href="https://fonts.googleapis.com/css2?family=Kanit&display=swap" rel="stylesheet">
-  
+
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="favicon.png">
 
@@ -18,44 +18,38 @@
       font-family: 'Kanit', sans-serif;
       background: linear-gradient(to bottom right, #ff4d88, #ff0066);
       color: white;
-      display: flex;
-      justify-content: center;
-      align-items: center;
       height: 100vh;
+      overflow: hidden;
     }
 
-    /* ปรับตำแหน่งปุ่มด้านขวาบน */
+    /* ปุ่มมุมขวาบน */
     .top-right-buttons {
       position: absolute;
       top: 10px;
       right: 10px;
       display: flex;
+      flex-direction: row-reverse;
       gap: 10px;
+      z-index: 1000;
     }
-    
-    /* สไตล์ปุ่มเรืองแสง */
+
+    /* ปุ่มเรืองแสง */
     button.glow, select.glow {
-      padding: 12px 20px;
+      padding: 10px 16px;
       border-radius: 16px;
-      font-size: 16px;
+      font-size: 14px;
       border: none;
       color: white;
       background: linear-gradient(45deg, #ff66b2, #ff3385);
       box-shadow: 0 0 15px #ff66b2;
       cursor: pointer;
-      position: relative;
-      overflow: hidden;
+      animation: waveGlow 2s infinite alternate ease-in-out;
     }
 
-    /* เอฟเฟกต์กระพริบแบบคลื่น */
     @keyframes waveGlow {
       0% { box-shadow: 0 0 10px #ff66b2; }
       50% { box-shadow: 0 0 20px #ff3385; }
       100% { box-shadow: 0 0 10px #ff66b2; }
-    }
-    
-    button.glow, select.glow {
-      animation: waveGlow 2s infinite alternate ease-in-out;
     }
 
     .dex-container {
@@ -67,6 +61,7 @@
       max-width: 400px;
       width: 100%;
       text-align: center;
+      margin: 100px auto 0;
     }
 
     h2 {
@@ -77,6 +72,7 @@
       margin-top: 12px;
       font-weight: bold;
       font-size: 15px;
+      text-align: left;
     }
 
     select, input {
@@ -88,7 +84,7 @@
       font-size: 16px;
     }
 
-    button {
+    button#swapBtn {
       width: 100%;
       padding: 12px;
       border: none;
@@ -101,19 +97,36 @@
       margin-top: 16px;
     }
 
-    button:hover {
+    button#swapBtn:hover {
       background-color: #ff1a75;
+    }
+
+    #wallet-address {
+      font-size: 14px;
+      margin-bottom: 10px;
+      opacity: 0.9;
     }
   </style>
 </head>
+
 <body>
 
   <!-- ปุ่มด้านขวาบน -->
   <div class="top-right-buttons">
     <button id="connectBtn" class="glow">🔌 เชื่อมต่อกระเป๋า</button>
-    <select id="chainSelector" class="glow"></select>
+    <select id="chainSelector" class="glow">
+      <option value="polygon">Polygon</option>
+      <option value="bsc">BSC</option>
+      <option value="ethereum">Ethereum</option>
+      <option value="arbitrum">Arbitrum</option>
+      <option value="base">Base</option>
+      <option value="linea">Linea</option>
+      <option value="pulsechain">PulseChain</option>
+      <option value="chronos">Chronos</option>
+    </select>
   </div>
 
+  <!-- กล่องหลัก -->
   <div class="dex-container">
     <h2>🔁 DEX Swap</h2>
 
@@ -138,7 +151,7 @@
     <button id="swapBtn">🔄 SWAP</button>
   </div>
 
-  <!-- โหลด JS Library -->
+  <!-- JS Libraries -->
   <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
   <script src="dexswap-v4.js"></script>
