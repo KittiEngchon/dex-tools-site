@@ -1,6 +1,6 @@
 async function loadTopTokens() {
   const tokenListEl = document.getElementById("token-list");
-  const proxyUrl = "https://dex-coingecko-proxy.vercel.app/api/markets";
+  const proxyUrl = "https://dex-coingecko-proxy.vercel.app/";
   const fallbackUrl = "https://kittiengchon.github.io/dex-tools-site/token-list.json";
 
   try {
