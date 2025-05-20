@@ -11,7 +11,6 @@
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="favicon.png">
 
-  <!-- Style สีชมพูอมแดงแวววาว -->
   <style>
     body {
       margin: 0;
@@ -34,7 +33,7 @@
     }
 
     /* ปุ่มเรืองแสง */
-    button.glow, select.glow {
+    .glow {
       padding: 10px 16px;
       border-radius: 16px;
       font-size: 14px;
@@ -44,6 +43,10 @@
       box-shadow: 0 0 15px #ff66b2;
       cursor: pointer;
       animation: waveGlow 2s infinite alternate ease-in-out;
+    }
+
+    select.glow {
+      appearance: none;
     }
 
     @keyframes waveGlow {
@@ -113,7 +116,7 @@
 
   <!-- ปุ่มด้านขวาบน -->
   <div class="top-right-buttons">
-    <button id="connectBtn" class="glow">🔌 เชื่อมต่อกระเป๋า</button>
+    <button id="connectBtn" class="glow">Connect Wallet</button>
     <select id="chainSelector" class="glow">
       <option value="polygon">Polygon</option>
       <option value="bsc">BSC</option>
@@ -159,4 +162,3 @@
 
 </body>
 </html>
-
