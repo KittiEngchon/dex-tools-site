@@ -50,6 +50,25 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
+  // --- ฟังก์ชัน scroll ซ่อน/แสดงปุ่ม wallet กับ chain selector ---
+  let lastScrollY = window.scrollY;
+  const topButtons = document.querySelector('.top-right-buttons');
+
+  window.addEventListener('scroll', () => {
+    const currentScrollY = window.scrollY;
+    if (currentScrollY > lastScrollY) {
+      // scroll ลง → ซ่อนปุ่ม
+      topButtons.style.opacity = '0';
+      topButtons.style.pointerEvents = 'none';
+    } else {
+      // scroll ขึ้น → แสดงปุ่ม
+      topButtons.style.opacity = '1';
+      topButtons.style.pointerEvents = 'auto';
+    }
+    lastScrollY = currentScrollY;
+  });
+  // -----------------------------------------------------------
+
   async function connectWallet() {
     if (!window.ethereum) {
       alert("กรุณาติดตั้ง MetaMask ก่อนใช้งาน");
@@ -114,9 +133,6 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   async function setupProvider() {
-    // กรณีเชื่อมผ่าน MetaMask ให้ใช้ provider ของ window.ethereum
-    // แต่ถ้า chain ไม่ตรงกับ MetaMask อาจต้องใช้ JsonRpcProvider
-    // ที่นี่เราลองสร้างใหม่จาก RPC ของ chain ที่เลือก (Fallback)
     try {
       // ตรวจสอบว่า chain ที่ MetaMask เชื่อมต่ออยู่ตรงกับ selected หรือไม่
       const metaChainId = await window.ethereum.request({ method: "eth_chainId" });
@@ -186,6 +202,9 @@ document.addEventListener("DOMContentLoaded", () => {
     };
     return map[chainId] || null;
   }
+
+});
+
 
 });
 
