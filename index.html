@@ -1,22 +1,45 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>DEX Swap</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
   <!-- Style สีชมพูอมแดงแวววาว -->
   <style>
-  <body>
+    body {
+      margin: 0;
+      font-family: 'Kanit', sans-serif;
+      background: linear-gradient(to bottom right, #ff4d88, #ff0066);
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .dex-container {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 24px;
+      border-radius: 20px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 0 20px rgba(255, 0, 100, 0.5);
+      max-width: 400px;
+      width: 100%;
+    }
+  </style>
+</head>
 
-  <!-- ปุ่มต่าง ๆ และ UI อยู่ตรงนี้ เช่น ปุ่ม Connect Wallet -->
+<body>
+  <div class="dex-container">
+    <!-- ปุ่มและ UI ของคุณ เช่น Connect Wallet, เลือก Chain, Token ฯลฯ -->
+  </div>
 
   <!-- โหลด Ethers.js ก่อน -->
   <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.min.js"></script>
-
-  <!-- แล้วค่อยโหลดสคริปต์หลักของคุณ -->
+  <!-- โหลดไฟล์หลัก -->
   <script src="dexswap-v4.js"></script>
-
-  </body>
+</body>
+</html>
     body {
       margin: 0;
       font-family: 'Kanit', sans-serif;
