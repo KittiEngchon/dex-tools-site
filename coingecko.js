@@ -1,33 +1,28 @@
-async function fetchCryptoData() {
-  const url = "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=polygon,ethereum,bitcoin";
+// coingecko.js
+
+async function loadTopTokens() {
+  const fromSelect = document.getElementById("fromToken");
+  const toSelect = document.getElementById("toToken");
 
   try {
-    const response = await fetch(url);
-    const data = await response.json();
-    
-    const cryptoList = document.getElementById("crypto-list");
-    cryptoList.innerHTML = "";
+    const res = await fetch("https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=volume_desc&per_page=10&page=1");
+    const tokens = await res.json();
 
-    data.forEach(coin => {
-      const card = document.createElement("div");
-      card.className = "crypto-card";
+    document.getElementById("crypto-list").innerText = "✅ โหลดเหรียญยอดนิยมแล้ว";
 
-      card.innerHTML = `
-        <img class="crypto-img" src="${coin.image}" alt="${coin.name}">
-        <h3>${coin.name} (${coin.symbol.toUpperCase()})</h3>
-        <p class="price">💰 $${coin.current_price}</p>
-      `;
-      
-      cryptoList.appendChild(card);
+    tokens.forEach(token => {
+      const opt1 = document.createElement("option");
+      opt1.value = token.symbol.toUpperCase();
+      opt1.text = `${token.name} (${token.symbol.toUpperCase()})`;
+      fromSelect.appendChild(opt1);
+
+      const opt2 = opt1.cloneNode(true);
+      toSelect.appendChild(opt2);
     });
 
-  } catch (error) {
-    console.error("❌ ดึงราคาล้มเหลว:", error);
-    document.getElementById("crypto-list").innerHTML = "<p>⛔ ไม่สามารถโหลดข้อมูล</p>";
+  } catch (err) {
+    document.getElementById("crypto-list").innerText = "❌ โหลดเหรียญล้มเหลว";
   }
 }
 
-// โหลดข้อมูลเมื่อเปิดเว็บ
-window.onload = fetchCryptoData;
-// โหลดข้อมูลเมื่อเปิดเว็บ
-window.onload = fetchCryptoData;
+document.addEventListener("DOMContentLoaded", loadTopTokens);
