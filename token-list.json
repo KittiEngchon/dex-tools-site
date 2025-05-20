@@ -1,15 +1,148 @@
 [
   {
-    "symbol": "USDC",
-    "name": "USD Coin",
-    "address": "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
-    "decimals": 6,
+    "symbol": "COM",
+    "name": "Commition",
+    "address": "0x83eac303EED75656297868A463603edaabe0DAA2",
+    "decimals": 18,
     "chain": "polygon"
   },
   {
-    "symbol": "WETH",
-    "name": "Wrapped Ether",
-    "address": "0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619",
+    "symbol": "PRE",
+    "name": "Premium",
+    "address": "0x057041064e59059a74719c6f590e2ebf45a05f77",
+    "decimals": 18,
+    "chain": "polygon"
+  },
+  {
+    "symbol": "BOT",
+    "name": "Botany",
+    "address": "0xbae2C9AAb222078693CeAd26b84EdfAf57ce13cE",
+    "decimals": 18,
+    "chain": "polygon"
+  },
+  {
+    "symbol": "VOLT",
+    "name": "Volt",
+    "address": "0xaCC2Ae4EFE6aD2830007b94cBc038F5D9B835A4F",
+    "decimals": 18,
+    "chain": "polygon"
+  },
+  {
+    "symbol": "PER",
+    "name": "Perfect",
+    "address": "0x78F79ff5ab0599C575016a9B9Ed722BB6c21eC41",
+    "decimals": 18,
+    "chain": "polygon"
+  },
+  {
+    "symbol": "ADV",
+    "name": "Advance",
+    "address": "0x9F1556d8401bDfF59b5130C9662c490A8560D74f",
+    "decimals": 18,
+    "chain": "polygon"
+  },
+  {
+    "symbol": "Zen",
+    "name": "Zenny",
+    "address": "0x4952E65099feAEdaE5aB28E374C47b06270b0225",
+    "decimals": 18,
+    "chain": "polygon"
+  },
+  {
+    "symbol": "ZION",
+    "name": "Zion",
+    "address": "0x1E368FFb1A5f4ea6a53BFA3d5999B0e303833404",
+    "decimals": 18,
+    "chain": "polygon"
+  },
+  {
+    "symbol": "Gravity",
+    "name": "Gravity",
+    "address": "0xA2FEa8f1Ca5dcD94a5D7A1f7E4269c0BD0EE0f08",
+    "decimals": 18,
+    "chain": "polygon"
+  },
+  {
+    "symbol": "Extreme",
+    "name": "Extreme",
+    "address": "0x2fFb71c839309E7D0f5bE424bE21DaBd1F166108",
+    "decimals": 18,
+    "chain": "polygon"
+  },
+  {
+    "symbol": "Ama",
+    "name": "Amazing",
+    "address": "0xaA968f94F98343fd7775Fffbcf11b133a450A79d",
+    "decimals": 18,
+    "chain": "polygon"
+  },
+  {
+    "symbol": "Fes",
+    "name": "Festival",
+    "address": "0x7fa785FB1FEEcde8c3631B66C5Bb35442D01B350",
+    "decimals": 18,
+    "chain": "polygon"
+  },
+  {
+    "symbol": "HOL",
+    "name": "Holiday",
+    "address": "0x5aC17cDfaE744eb20fcF638623d96aF1Ced013D7",
+    "decimals": 18,
+    "chain": "polygon"
+  },
+  {
+    "symbol": "PRO",
+    "name": "Prototypes",
+    "address": "0x2ade258e01cB103274aF06A18B49960f5Ef49c35",
+    "decimals": 18,
+    "chain": "polygon"
+  },
+  {
+    "symbol": "ICF",
+    "name": "International Cryptocurrency Fund",
+    "address": "0x027990B62Ee56779c362FB5119e8c9E972C533E0",
+    "decimals": 18,
+    "chain": "polygon"
+  },
+  {
+    "symbol": "WCG",
+    "name": "Wold Cryptocurrency Group",
+    "address": "0x3938cDF52fD36d12E2c6dbA94360c5a7b8822190",
+    "decimals": 18,
+    "chain": "polygon"
+  },
+  {
+    "symbol": "FREEZER",
+    "name": "Freezer Hedge Fund",
+    "address": "0x7f69A16b6a3F112dCDF07ca89D68BE4456a41714",
+    "decimals": 18,
+    "chain": "polygon"
+  },
+  {
+    "symbol": "USDS",
+    "name": "United States Dollar Supreme",
+    "address": "0xEd8E4b3eC3D8fd0f30760646f90248988c43A90a",
+    "decimals": 18,
+    "chain": "polygon"
+  },
+  {
+    "symbol": "AUSD",
+    "name": "Australia Dollar Supreme",
+    "address": "0xd31EF81615A788092305b48A0c72A123375846d1",
+    "decimals": 18,
+    "chain": "polygon"
+  },
+  {
+    "symbol": "INRS",
+    "name": "Indian Rupeya Supreme",
+    "address": "0xDa646a37f12C20c29a0c021EdC04d521341d0C57",
+    "decimals": 18,
+    "chain": "polygon"
+  },
+  {
+    "symbol": "UNIT",
+    "name": "Universal Trust",
+    "address": "0xf781F5508bdEbf734E309E584b7c20f831af6944",
     "decimals": 18,
     "chain": "polygon"
   }
