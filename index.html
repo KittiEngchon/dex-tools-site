@@ -56,7 +56,33 @@
 
     <button id="swapBtn">🔄 SWAP</button>
   </div>
+<button id="wallet-button">Connect Wallet</button>
 
+<div id="wallet-sidebar" style="
+  position: fixed;
+  top: 0;
+  right: -320px;
+  width: 320px;
+  height: 100vh;
+  background: #222;
+  color: #eee;
+  padding: 1rem;
+  box-shadow: -3px 0 10px rgba(0,0,0,0.5);
+  transition: right 0.3s ease;
+  overflow-y: auto;
+  z-index: 1000;
+">
+  <h3>Wallet Balances</h3>
+  <div id="balance-list">Loading...</div>
+  <button id="close-sidebar" style="
+    margin-top: 1rem;
+    padding: 0.5rem 1rem;
+    background: #555;
+    border: none;
+    color: white;
+    cursor: pointer;
+  ">Close</button>
+</div>
   <!-- JavaScript Libraries (เรียงลำดับสำคัญมาก!) -->
   <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
