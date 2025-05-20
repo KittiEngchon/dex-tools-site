@@ -23,6 +23,41 @@
       align-items: center;
       height: 100vh;
     }
+
+    /* ปรับตำแหน่งปุ่มด้านขวาบน */
+    .top-right-buttons {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      display: flex;
+      gap: 10px;
+    }
+    
+    /* สไตล์ปุ่มเรืองแสง */
+    button.glow, select.glow {
+      padding: 12px 20px;
+      border-radius: 16px;
+      font-size: 16px;
+      border: none;
+      color: white;
+      background: linear-gradient(45deg, #ff66b2, #ff3385);
+      box-shadow: 0 0 15px #ff66b2;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* เอฟเฟกต์กระพริบแบบคลื่น */
+    @keyframes waveGlow {
+      0% { box-shadow: 0 0 10px #ff66b2; }
+      50% { box-shadow: 0 0 20px #ff3385; }
+      100% { box-shadow: 0 0 10px #ff66b2; }
+    }
+    
+    button.glow, select.glow {
+      animation: waveGlow 2s infinite alternate ease-in-out;
+    }
+
     .dex-container {
       background: rgba(255, 255, 255, 0.1);
       padding: 24px;
@@ -31,16 +66,19 @@
       box-shadow: 0 0 20px rgba(255, 0, 100, 0.5);
       max-width: 400px;
       width: 100%;
-    }
-    h2 {
       text-align: center;
+    }
+
+    h2 {
       margin-bottom: 1rem;
     }
+
     .label {
       margin-top: 12px;
       font-weight: bold;
       font-size: 15px;
     }
+
     select, input {
       width: 100%;
       margin: 6px 0;
@@ -49,6 +87,7 @@
       border: none;
       font-size: 16px;
     }
+
     button {
       width: 100%;
       padding: 12px;
@@ -61,29 +100,24 @@
       transition: background 0.3s;
       margin-top: 16px;
     }
+
     button:hover {
       background-color: #ff1a75;
     }
-    #wallet-address, #priceEstimate {
-      margin-top: 12px;
-      text-align: center;
-      font-weight: bold;
-    }
-     body { font-family: 'Kanit', sans-serif; text-align: center; }
-    .crypto-container { display: flex; flex-direction: column; gap: 20px; align-items: center; }
-    .crypto-card { padding: 20px; border-radius: 12px; background: #f4f4f4; width: 300px; text-align: center; }
-    .crypto-img { width: 60px; height: 60px; }
-    .price { font-size: 20px; font-weight: bold; }
   </style>
 </head>
 <body>
+
+  <!-- ปุ่มด้านขวาบน -->
+  <div class="top-right-buttons">
+    <button id="connectBtn" class="glow">🔌 เชื่อมต่อกระเป๋า</button>
+    <select id="chainSelector" class="glow"></select>
+  </div>
+
   <div class="dex-container">
     <h2>🔁 DEX Swap</h2>
-    <button id="connectBtn">🔌 เชื่อมต่อกระเป๋า</button>
-    <p id="wallet-address">⛔ ยังไม่ได้เชื่อมต่อ</p>
 
-    <div class="label">🔗 เลือกเครือข่าย</div>
-    <select id="chainSelector"></select>
+    <p id="wallet-address">⛔ ยังไม่ได้เชื่อมต่อ</p>
 
     <div class="label">🪙 จากเหรียญ</div>
     <select id="fromToken"></select>
@@ -99,7 +133,6 @@
     <div class="label">⚙️ Slippage (%)</div>
     <input type="number" id="slippage" placeholder="เช่น 1" value="1">
 
-    <div id="crypto-list"></div>
     <div id="crypto-list">⏳ กำลังโหลดข้อมูลเหรียญ...</div>
 
     <button id="swapBtn">🔄 SWAP</button>
@@ -109,11 +142,8 @@
   <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
   <script src="dexswap-v4.js"></script>
+  <script src="coingecko.js"></script>
+
 </body>
 </html>
-  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-  <script src="dexswap-v4.js"></script>
-  <script src="coingecko.js"></script> <!-- ไฟล์แยกสำหรับ CoinGecko -->
-</body>
-</html>
+
