@@ -1,18 +1,15 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>DEX Swap</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <!-- ฟอนต์ -->
-  <link href="https://fonts.googleapis.com/css2?family=Kanit&display=swap" rel="stylesheet">
-
-  <!-- Favicon -->
-  <link rel="icon" type="image/png" href="favicon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Kanit&display=swap" rel="stylesheet" />
 
   <!-- CSS -->
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css" />
 </head>
 
 <body>
@@ -35,22 +32,21 @@
   <!-- กล่องหลัก -->
   <div class="dex-container">
     <h2>🔁 DEX Swap</h2>
-
     <p id="wallet-address">⛔ ยังไม่ได้เชื่อมต่อ</p>
 
     <div class="label">🪙 จากเหรียญ</div>
     <select id="fromToken"></select>
-    <input type="text" id="fromAddress" placeholder="หรือวางที่อยู่ token">
+    <input type="text" id="fromAddress" placeholder="หรือวางที่อยู่ token" />
 
     <div class="label">➡️ ไปยังเหรียญ</div>
     <select id="toToken"></select>
-    <input type="text" id="toAddress" placeholder="หรือวางที่อยู่ token">
+    <input type="text" id="toAddress" placeholder="หรือวางที่อยู่ token" />
 
     <div class="label">💸 จำนวนเหรียญที่ต้องการแลก</div>
-    <input type="number" id="amount" placeholder="จำนวน...">
+    <input type="number" id="amount" placeholder="จำนวน..." />
 
     <div class="label">⚙️ Slippage (%)</div>
-    <input type="number" id="slippage" placeholder="เช่น 1" value="1">
+    <input type="number" id="slippage" placeholder="เช่น 1" value="1" />
 
     <div id="crypto-list">⏳ กำลังโหลดข้อมูลเหรียญ...</div>
 
@@ -61,13 +57,15 @@
     <button id="swapBtn">🔄 SWAP</button>
   </div>
 
-  <!-- JS Libraries -->
-  <script src="ui-utils.js"></script>
-  <script src="add-token.js"></script>
+  <!-- JavaScript Libraries (เรียงลำดับสำคัญมาก!) -->
   <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-  <script src="dexswap-v4.js"></script>
-  <script src="coingecko.js"></script>
 
+  <!-- Custom Scripts (หลังจากโหลด lib ด้านบนแล้ว) -->
+  <script src="ui-utils.js"></script>
+  <script src="import-token.js"></script>
+  <script src="add-token.js"></script>
+  <script src="coingecko.js"></script>
+  <script src="dexswap-v4.js"></script>
 </body>
 </html>
