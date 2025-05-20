@@ -1,11 +1,12 @@
 let provider, signer, selectedChain = 'polygon';
 
 const CHAINS = {
-  polygon: { chainId: '0x89', name: 'Polygon', rpc: 'https://polygon-rpc.com', swapApi: 'https://polygon.api.0x.org' },
-  bsc: { chainId: '0x38', name: 'Binance Smart Chain', rpc: 'https://bsc-dataseed.binance.org', swapApi: 'https://bsc.api.0x.org' },
-  ethereum: { chainId: '0x1', name: 'Ethereum', rpc: 'https://mainnet.infura.io/v3/', swapApi: 'https://api.0x.org' }
+  polygon: { chainId: '0x89', name: 'Polygon', rpc: 'https://polygon-rpc.com', swapApi: 'https://polygon.api.0x.org', tokens: ['MATIC', 'USDC'] },
+  bsc: { chainId: '0x38', name: 'Binance Smart Chain', rpc: 'https://bsc-dataseed.binance.org', swapApi: 'https://bsc.api.0x.org', tokens: ['BNB', 'USDT'] },
+  ethereum: { chainId: '0x1', name: 'Ethereum', rpc: 'https://mainnet.infura.io/v3/', swapApi: 'https://api.0x.org', tokens: ['ETH', 'USDC'] }
 };
 
+// เชื่อมต่อ MetaMask
 async function connectWallet() {
   if (typeof window.ethereum !== 'undefined') {
     try {
@@ -27,6 +28,16 @@ async function connectWallet() {
   }
 }
 
+// โหลดรายการเครือข่าย
+function loadChains() {
+  const chainSelector = document.getElementById('chainSelector');
+  Object.keys(CHAINS).forEach(chainKey => {
+    const opt = new Option(CHAINS[chainKey].name, chainKey);
+    chainSelector.appendChild(opt);
+  });
+}
+
+// สลับเครือข่าย
 async function switchChain(chainKey) {
   const chain = CHAINS[chainKey];
   selectedChain = chainKey;
@@ -39,8 +50,24 @@ async function switchChain(chainKey) {
   } catch (e) {
     alert(`❌ ไม่สามารถเปลี่ยนไปยังเครือข่าย ${chain.name}`);
   }
+
+  loadTokens(chainKey);
 }
 
+// โหลดเหรียญที่รองรับ
+function loadTokens(chainKey) {
+  const tokens = CHAINS[chainKey].tokens;
+  const fromSel = document.getElementById('fromToken');
+  const toSel = document.getElementById('toToken');
+  fromSel.innerHTML = ''; toSel.innerHTML = '';
+
+  tokens.forEach(token => {
+    fromSel.appendChild(new Option(token, token));
+    toSel.appendChild(new Option(token, token));
+  });
+}
+
+// ประเมินราคา
 async function estimatePrice() {
   const chain = CHAINS[selectedChain];
   const sellToken = document.getElementById('fromToken').value;
@@ -62,6 +89,7 @@ async function estimatePrice() {
 }
 
 window.onload = () => {
+  loadChains();
   document.getElementById('connectBtn').onclick = connectWallet;
   document.getElementById('chainSelector').onchange = e => switchChain(e.target.value);
   document.getElementById('amount').oninput = estimatePrice;
