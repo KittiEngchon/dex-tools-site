@@ -1,0 +1,23 @@
+<!-- ui.html -->
+<div class="dex-container">
+  <h2>🔁 DEX Swap</h2>
+  <p id="wallet-address">⛔ ยังไม่ได้เชื่อมต่อ</p>
+
+  <div class="label">🪙 จากเหรียญ</div>
+  <select id="fromToken"></select>
+  <input type="text" id="fromAddress" placeholder="หรือวางที่อยู่ token">
+
+  <div class="label">➡️ ไปยังเหรียญ</div>
+  <select id="toToken"></select>
+  <input type="text" id="toAddress" placeholder="หรือวางที่อยู่ token">
+
+  <div class="label">💸 จำนวนเหรียญที่ต้องการแลก</div>
+  <input type="number" id="amount" placeholder="จำนวน...">
+
+  <div class="label">⚙️ Slippage (%)</div>
+  <input type="number" id="slippage" placeholder="เช่น 1" value="1">
+
+  <div id="crypto-list">⏳ กำลังโหลดข้อมูลเหรียญ...</div>
+  <div id="add-token-wrapper"></div>
+  <button id="swapBtn">🔄 SWAP</button>
+</div>
