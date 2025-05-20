@@ -1,129 +1,75 @@
-// dexsawp-v4.js
-
-let provider;
-let signer;
-let userAddress;
+// dexs...js (v4)
+let provider, signer, userAddress;
 let isConnected = false;
 
-const walletButton = document.getElementById('wallet-button');
-const sidebar = document.getElementById('wallet-sidebar');
-const balanceList = document.getElementById('balance-list');
-const closeSidebarBtn = document.getElementById('close-sidebar');
+const connectBtn = document.getElementById("connectBtn");
+const walletAddressEl = document.getElementById("wallet-address");
+const sidebar = document.getElementById("wallet-sidebar");
+const sidebarAddress = document.getElementById("sidebar-address");
+const balanceList = document.getElementById("balance-list");
+const closeSidebarBtn = document.getElementById("close-sidebar");
 
-function updateSidebarWalletAddress() {
-  const sidebarWalletEl = document.getElementById('sidebar-wallet-address');
-  if (sidebarWalletEl && userAddress) {
-    sidebarWalletEl.innerText = `🆔 ${userAddress}`;
-  }
-}
-
-async function connectWallet() {
-  try {
-    if (!window.ethereum) {
-      alert('Please install MetaMask!');
-      return;
-    }
-    provider = new ethers.providers.Web3Provider(window.ethereum);
-    await provider.send("eth_requestAccounts", []);
-    signer = provider.getSigner();
-    userAddress = await signer.getAddress();
-    isConnected = true;
-    walletButton.textContent = 'Disconnect Wallet';
-    updateSidebarWalletAddress();
-    openSidebar();
-    loadBalances();
-  } catch (err) {
-    console.error('Connect Wallet Error:', err);
-  }
-}
-
-function disconnectWallet() {
-  provider = null;
-  signer = null;
-  userAddress = null;
-  isConnected = false;
-  walletButton.textContent = 'Connect Wallet';
-  balanceList.innerHTML = '';
-  document.getElementById('sidebar-wallet-address').innerText = '';
-  closeSidebar();
-}
-
-walletButton.onclick = () => {
+connectBtn.onclick = async () => {
   if (!isConnected) {
-    connectWallet();
+    await connectWallet();
   } else {
-    if (sidebar.style.right === '0px') {
-      closeSidebar();
-    } else {
-      openSidebar();
-    }
+    toggleSidebar();
   }
 };
 
 closeSidebarBtn.onclick = closeSidebar;
 
+async function connectWallet() {
+  if (!window.ethereum) {
+    alert("กรุณาติดตั้ง MetaMask");
+    return;
+  }
+
+  provider = new ethers.providers.Web3Provider(window.ethereum);
+  await provider.send("eth_requestAccounts", []);
+  signer = provider.getSigner();
+  userAddress = await signer.getAddress();
+  isConnected = true;
+
+  walletAddressEl.innerText = `🔗 ${userAddress}`;
+  connectBtn.innerText = "✅ Connected";
+  sidebarAddress.innerText = userAddress;
+
+  openSidebar();
+  loadBalances();
+
+  ethereum.on("accountsChanged", () => window.location.reload());
+  ethereum.on("chainChanged", () => window.location.reload());
+}
+
 function openSidebar() {
-  sidebar.style.right = '0px';
-  if (isConnected) loadBalances();
+  sidebar.style.right = "0px";
+  loadBalances();
 }
 
 function closeSidebar() {
-  sidebar.style.right = '-320px';
+  sidebar.style.right = "-320px";
+}
+
+function toggleSidebar() {
+  if (sidebar.style.right === "0px") {
+    closeSidebar();
+  } else {
+    openSidebar();
+  }
 }
 
 async function loadBalances() {
   if (!userAddress) return;
 
-  balanceList.innerHTML = 'Loading...';
-
   try {
     const balanceMatic = await provider.getBalance(userAddress);
-    const balanceMaticFormatted = ethers.utils.formatEther(balanceMatic);
-
-    const tokens = [
-      { symbol: 'MATIC', address: null, decimals: 18 },
-      { symbol: 'COM', address: '0x83eac303EED75656297868A463603edaabe0DAA2', decimals: 2 },
-      { symbol: 'PRE', address: '0x057041064e59059a74719c6f590e2ebf45a05f77', decimals: 2 },
-    ];
-
-    let html = `<p><strong>MATIC:</strong> ${balanceMaticFormatted}</p>`;
-
-    for (const token of tokens) {
-      if (!token.address) continue;
-
-      try {
-        const tokenContract = new ethers.Contract(token.address, [
-          "function balanceOf(address) view returns (uint256)",
-          "function decimals() view returns (uint8)",
-        ], provider);
-
-        const balanceRaw = await tokenContract.balanceOf(userAddress);
-        const decimals = token.decimals || await tokenContract.decimals();
-        const balanceFormatted = ethers.utils.formatUnits(balanceRaw, decimals);
-
-        html += `<p><strong>${token.symbol}:</strong> ${balanceFormatted}</p>`;
-      } catch {
-        html += `<p><strong>${token.symbol}:</strong> Error</p>`;
-      }
-    }
-
+    const balanceFormatted = ethers.utils.formatEther(balanceMatic);
+    let html = `<p><strong>MATIC:</strong> ${balanceFormatted}</p>`;
     balanceList.innerHTML = html;
-
   } catch (err) {
-    balanceList.innerHTML = 'Error loading balances';
-    console.error(err);
+    console.error("Load balance error:", err);
+    balanceList.innerHTML = "Error loading balances";
   }
 }
-
-window.ethereum?.on("accountsChanged", (accounts) => {
-  if (accounts.length === 0) {
-    disconnectWallet();
-  } else {
-    connectWallet();
-  }
-});
-
-window.ethereum?.on("chainChanged", () => {
-  connectWallet();
-});
 
