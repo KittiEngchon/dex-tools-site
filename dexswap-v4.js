@@ -206,7 +206,5 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 
-});
-
 
 
