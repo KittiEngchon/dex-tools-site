@@ -126,3 +126,4 @@ window.ethereum?.on("accountsChanged", (accounts) => {
 window.ethereum?.on("chainChanged", () => {
   connectWallet();
 });
+
