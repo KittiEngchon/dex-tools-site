@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>DEX Swap</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
   <!-- ฟอนต์ -->
   <link href="https://fonts.googleapis.com/css2?family=Kanit&display=swap" rel="stylesheet">
-
+  
   <!-- Style สีชมพูอมแดงแวววาว -->
   <style>
     body {
@@ -68,38 +68,27 @@
     }
   </style>
 </head>
-
 <body>
   <div class="dex-container">
     <h2>🔁 DEX Swap</h2>
-
     <button id="connectBtn">🔌 เชื่อมต่อกระเป๋า</button>
 
     <div class="label">🔗 เลือกเครือข่าย</div>
-    <select id="chainSelector">
-      <option value="polygon">Polygon</option>
-      <option value="bsc">BSC</option>
-      <option value="ethereum">Ethereum</option>
-      <option value="arbitrum">Arbitrum</option>
-      <option value="base">Base</option>
-      <option value="linea">Linea</option>
-      <option value="pulsechain">PulseChain</option>
-      <option value="chronos">Chronos</option>
-    </select>
+    <select id="chainSelector"></select>
 
     <div class="label">🪙 จากเหรียญ</div>
     <select id="fromToken"></select>
-    <input type="text" id="fromAddress" placeholder="หรือวางที่อยู่ token" />
+    <input type="text" id="fromAddress" placeholder="หรือวางที่อยู่ token">
 
     <div class="label">➡️ ไปยังเหรียญ</div>
     <select id="toToken"></select>
-    <input type="text" id="toAddress" placeholder="หรือวางที่อยู่ token" />
+    <input type="text" id="toAddress" placeholder="หรือวางที่อยู่ token">
 
     <div class="label">💸 จำนวนเหรียญที่ต้องการแลก</div>
-    <input type="number" id="amount" placeholder="จำนวน..." />
+    <input type="number" id="amount" placeholder="จำนวน...">
 
     <div class="label">⚙️ Slippage (%)</div>
-    <input type="number" id="slippage" placeholder="เช่น 1" value="1" />
+    <input type="number" id="slippage" placeholder="เช่น 1" value="1">
 
     <div id="priceEstimate">💰 ได้รับโดยประมาณ: -</div>
 
@@ -109,6 +98,6 @@
   <!-- โหลด JS Library -->
   <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-  <script src="https://kittiengchon.github.io/dex-tools-site/dexswap-v4.js"></script>
+  <script src="dexswap-v4.js"></script>
 </body>
 </html>
