@@ -1,78 +1,16 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
   <title>DEX Swap</title>
-  <link href="https://fonts.googleapis.com/css2?family=Kanit&display=swap" rel="stylesheet">
-  <style>
-    body {
-      font-family: 'Kanit', sans-serif;
-      margin: 0;
-      background: #fff0f5;
-      color: #333;
-    }
-    .top-right-buttons {
-      position: absolute;
-      top: 1rem;
-      right: 1rem;
-      display: flex;
-      gap: 0.5rem;
-    }
-    button, select, input {
-      font-family: 'Kanit', sans-serif;
-      padding: 0.5rem 1rem;
-      border-radius: 8px;
-      border: none;
-      outline: none;
-    }
-    button.glow {
-      background: #ff69b4;
-      color: white;
-      font-weight: bold;
-      box-shadow: 0 0 10px #ff69b4;
-      cursor: pointer;
-    }
-    .dex-container {
-      max-width: 400px;
-      margin: 6rem auto;
-      background: white;
-      padding: 2rem;
-      border-radius: 16px;
-      box-shadow: 0 0 20px rgba(0,0,0,0.1);
-    }
-    .label {
-      margin-top: 1rem;
-    }
-    #wallet-sidebar {
-      position: fixed;
-      top: 0;
-      right: -320px;
-      width: 320px;
-      height: 100vh;
-      background: #ffe4f1;
-      color: #333;
-      padding: 1rem;
-      box-shadow: -3px 0 10px rgba(0,0,0,0.2);
-      transition: right 0.3s ease;
-      overflow-y: auto;
-      z-index: 1000;
-    }
-    #wallet-sidebar h3 {
-      margin-top: 0;
-    }
-    #close-sidebar {
-      margin-top: 1rem;
-      background: #ff69b4;
-      color: white;
-      cursor: pointer;
-    }
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://fonts.googleapis.com/css2?family=Kanit&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
 </head>
-<body>
 
+<body>
   <div class="top-right-buttons">
-    <button id="connectBtn" class="glow">Connect Wallet</button>
+    <button id="wallet-button" class="glow">Connect Wallet</button>
     <select id="chainSelector" class="glow">
       <option value="polygon">Polygon</option>
       <option value="bsc">BSC</option>
@@ -88,21 +26,27 @@
   <div class="dex-container">
     <h2>🔁 DEX Swap</h2>
     <p id="wallet-address">⛔ ยังไม่ได้เชื่อมต่อ</p>
+    <div class="label">💸 จำนวนเหรียญที่ต้องการแลก</div>
+    <input type="number" id="amount" placeholder="จำนวน..." />
+
+    <div class="label">⚙️ Slippage (%)</div>
+    <input type="number" id="slippage" placeholder="เช่น 1" value="1" />
+
     <button id="swapBtn">🔄 SWAP</button>
   </div>
 
   <div id="wallet-sidebar">
     <h3>Wallet Balances</h3>
-    <p id="sidebar-address">กำลังโหลด...</p>
+    <p id="wallet-address-sidebar"></p>
     <div id="balance-list">Loading...</div>
     <button id="close-sidebar">Close</button>
   </div>
 
-  <!-- Libraries -->
+  <!-- Load Libraries First -->
   <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
-  <!-- Custom Logic -->
+  <!-- Custom Script -->
   <script src="dexswap-v4.js"></script>
 </body>
 </html>
