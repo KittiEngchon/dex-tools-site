@@ -1,75 +1,67 @@
-// dexs...js (v4)
-let provider, signer, userAddress;
-let isConnected = false;
+document.addEventListener("DOMContentLoaded", () => {
+  const walletButton = document.getElementById('wallet-button');
+  const sidebar = document.getElementById('wallet-sidebar');
+  const balanceList = document.getElementById('balance-list');
+  const closeSidebarBtn = document.getElementById('close-sidebar');
+  const walletAddress = document.getElementById('wallet-address');
+  const walletAddressSidebar = document.getElementById('wallet-address-sidebar');
 
-const connectBtn = document.getElementById("connectBtn");
-const walletAddressEl = document.getElementById("wallet-address");
-const sidebar = document.getElementById("wallet-sidebar");
-const sidebarAddress = document.getElementById("sidebar-address");
-const balanceList = document.getElementById("balance-list");
-const closeSidebarBtn = document.getElementById("close-sidebar");
+  let provider, signer, userAddress, isConnected = false;
 
-connectBtn.onclick = async () => {
-  if (!isConnected) {
-    await connectWallet();
-  } else {
-    toggleSidebar();
-  }
-};
-
-closeSidebarBtn.onclick = closeSidebar;
-
-async function connectWallet() {
-  if (!window.ethereum) {
-    alert("กรุณาติดตั้ง MetaMask");
+  if (!walletButton || !sidebar || !balanceList || !closeSidebarBtn) {
+    console.error("❌ บาง element ไม่พบใน DOM");
     return;
   }
 
-  provider = new ethers.providers.Web3Provider(window.ethereum);
-  await provider.send("eth_requestAccounts", []);
-  signer = provider.getSigner();
-  userAddress = await signer.getAddress();
-  isConnected = true;
+  walletButton.onclick = async () => {
+    if (!isConnected) {
+      await connectWallet();
+    } else {
+      toggleSidebar();
+    }
+  };
 
-  walletAddressEl.innerText = `🔗 ${userAddress}`;
-  connectBtn.innerText = "✅ Connected";
-  sidebarAddress.innerText = userAddress;
+  closeSidebarBtn.onclick = () => {
+    sidebar.style.right = '-320px';
+  };
 
-  openSidebar();
-  loadBalances();
+  async function connectWallet() {
+    if (!window.ethereum) {
+      alert("กรุณาติดตั้ง MetaMask");
+      return;
+    }
 
-  ethereum.on("accountsChanged", () => window.location.reload());
-  ethereum.on("chainChanged", () => window.location.reload());
-}
+    try {
+      provider = new ethers.providers.Web3Provider(window.ethereum);
+      await provider.send("eth_requestAccounts", []);
+      signer = provider.getSigner();
+      userAddress = await signer.getAddress();
+      isConnected = true;
 
-function openSidebar() {
-  sidebar.style.right = "0px";
-  loadBalances();
-}
-
-function closeSidebar() {
-  sidebar.style.right = "-320px";
-}
-
-function toggleSidebar() {
-  if (sidebar.style.right === "0px") {
-    closeSidebar();
-  } else {
-    openSidebar();
+      walletButton.textContent = 'Disconnect Wallet';
+      walletAddress.textContent = `🔗 ${userAddress}`;
+      walletAddressSidebar.textContent = `🔗 ${userAddress}`;
+      sidebar.style.right = '0px';
+      await loadBalances();
+    } catch (err) {
+      console.error("Connect Wallet Error:", err);
+    }
   }
-}
 
-async function loadBalances() {
-  if (!userAddress) return;
-
-  try {
-    const balanceMatic = await provider.getBalance(userAddress);
-    const balanceFormatted = ethers.utils.formatEther(balanceMatic);
-    let html = `<p><strong>MATIC:</strong> ${balanceFormatted}</p>`;
-    balanceList.innerHTML = html;
-  } catch (err) {
-    console.error("Load balance error:", err);
-    balanceList.innerHTML = "Error loading balances";
+  function toggleSidebar() {
+    sidebar.style.right = (sidebar.style.right === '0px') ? '-320px' : '0px';
   }
-}
+
+  async function loadBalances() {
+    if (!userAddress || !provider) return;
+    try {
+      const balance = await provider.getBalance(userAddress);
+      const formatted = ethers.utils.formatEther(balance);
+      balanceList.innerHTML = `<p><strong>MATIC:</strong> ${formatted}</p>`;
+    } catch (err) {
+      balanceList.innerHTML = "Error loading balance";
+    }
+  }
+});
+
 
