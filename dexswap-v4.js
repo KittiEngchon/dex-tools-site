@@ -1,179 +1,149 @@
-document.addEventListener("DOMContentLoaded", () => {
-  const walletButton = document.getElementById('wallet-button');
-  const sidebar = document.getElementById('wallet-sidebar');
-  const balanceList = document.getElementById('balance-list');
-  const closeSidebarBtn = document.getElementById('close-sidebar');
-  const walletAddress = document.getElementById('wallet-address');
-  const walletAddressSidebar = document.getElementById('wallet-address-sidebar');
+// DEX Swap v4.js - Clean Version with Wallet Connect, Chain Select, Slippage, and 0x API
+
+// Add your 0x API endpoint here
+const ZEROX_API_BASE = 'https://polygon.api.0x.org';
+
+let provider, signer, userAddress, currentChain = 'polygon';
+
+const rpcMap = {
+  polygon: "https://polygon-rpc.com",
+  bsc: "https://bsc-dataseed.binance.org/",
+  ethereum: "https://mainnet.infura.io/v3/YOUR_INFURA_PROJECT_ID",
+  arbitrum: "https://arb1.arbitrum.io/rpc",
+  base: "https://base-mainnet.public.blastapi.io",
+  linea: "https://rpc.goerli.linea.build",
+  pulsechain: "https://rpc.pulsechain.com",
+  chronos: "https://mainnet.chronos.org",
+};
+
+window.addEventListener('DOMContentLoaded', () => {
+  const walletBtn = document.getElementById('wallet-button');
   const chainSelector = document.getElementById('chainSelector');
   const swapBtn = document.getElementById('swapBtn');
+  const amountInput = document.getElementById('amount');
+  const slippageInput = document.getElementById('slippage');
+  const tokenInSelect = document.getElementById('tokenIn');
+  const tokenOutSelect = document.getElementById('tokenOut');
+  const estimateEl = document.getElementById('estimate');
 
-  let provider = null;
-  let signer = null;
-  let userAddress = null;
-  let currentChain = chainSelector.value;
+  let topButtons = document.querySelector('.top-right-buttons');
+  let lastScrollY = window.scrollY;
 
-  // RPC URL สำหรับแต่ละ chain
-  const rpcMap = {
-    polygon: "https://polygon-rpc.com",
-    bsc: "https://bsc-dataseed.binance.org/",
-    ethereum: "https://mainnet.infura.io/v3/YOUR_INFURA_PROJECT_ID",
-    arbitrum: "https://arb1.arbitrum.io/rpc",
-    base: "https://base-mainnet.public.blastapi.io",
-    linea: "https://rpc.goerli.linea.build",
-    pulsechain: "https://rpc.pulsechain.com",
-    chronos: "https://mainnet.chronos.org",
-  };
+  window.addEventListener('scroll', () => {
+    const currentY = window.scrollY;
+    if (currentY > lastScrollY) {
+      topButtons.style.opacity = '0';
+      topButtons.style.pointerEvents = 'none';
+    } else {
+      topButtons.style.opacity = '1';
+      topButtons.style.pointerEvents = 'auto';
+    }
+    lastScrollY = currentY;
+  });
 
-  swapBtn.disabled = true; // ปิดปุ่มก่อนเชื่อมต่อ
+  chainSelector.addEventListener('change', async (e) => {
+    currentChain = e.target.value;
+    await setupProvider();
+  });
 
-  walletButton.onclick = async () => {
+  walletBtn.addEventListener('click', async () => {
     if (!userAddress) {
       await connectWallet();
     } else {
-      toggleSidebar();
-    }
-  };
-
-  closeSidebarBtn.onclick = () => {
-    sidebar.style.right = "-320px";
-  };
-
-  chainSelector.addEventListener("change", async (e) => {
-    currentChain = e.target.value;
-    if (userAddress) {
-      await setupProvider();
-      await loadBalances();
+      disconnectWallet();
     }
   });
 
+  amountInput.addEventListener('input', getEstimate);
+  tokenInSelect.addEventListener('change', getEstimate);
+  tokenOutSelect.addEventListener('change', getEstimate);
+
+  swapBtn.addEventListener('click', async () => {
+    await executeSwap();
+  });
+
   async function connectWallet() {
-    if (!window.ethereum) {
-      alert("กรุณาติดตั้ง MetaMask ก่อนใช้งาน");
-      return;
-    }
-
+    if (!window.ethereum) return alert("ติดตั้ง MetaMask ก่อน");
     try {
-      await window.ethereum.request({ method: "eth_requestAccounts" });
-      await setupProvider();
-
+      await window.ethereum.request({ method: 'eth_requestAccounts' });
+      provider = new ethers.providers.Web3Provider(window.ethereum);
       signer = provider.getSigner();
       userAddress = await signer.getAddress();
-
-      walletAddress.textContent = `🔗 ${userAddress}`;
-      walletAddressSidebar.textContent = `🔗 ${userAddress}`;
-      walletButton.textContent = "Disconnect Wallet";
-      swapBtn.disabled = false;
-      sidebar.style.right = "0px";
-
-      await loadBalances();
-
-      // ฟัง event เปลี่ยนบัญชีหรือเชน
-      window.ethereum.on("accountsChanged", async (accounts) => {
-        if (accounts.length === 0) {
-          disconnectWallet();
-        } else {
-          userAddress = accounts[0];
-          walletAddress.textContent = `🔗 ${userAddress}`;
-          walletAddressSidebar.textContent = `🔗 ${userAddress}`;
-          await loadBalances();
-        }
-      });
-
-      window.ethereum.on("chainChanged", async (chainIdHex) => {
-        const chainId = parseInt(chainIdHex, 16);
-        const newChain = getChainNameByChainId(chainId);
-        if (newChain && newChain !== currentChain) {
-          currentChain = newChain;
-          chainSelector.value = newChain;
-          await setupProvider();
-          await loadBalances();
-        }
-      });
-    } catch (err) {
-      alert("ไม่สามารถเชื่อมต่อ Wallet ได้");
-      console.error(err);
+      walletBtn.textContent = `Disconnect Wallet (${shortAddress(userAddress)})`;
+      await setupProvider();
+    } catch (e) {
+      console.error('Wallet connection error:', e);
     }
   }
 
   function disconnectWallet() {
     userAddress = null;
-    walletAddress.textContent = "⛔ ยังไม่ได้เชื่อมต่อ";
-    walletAddressSidebar.textContent = "";
-    walletButton.textContent = "Connect Wallet";
-    balanceList.innerHTML = "";
-    swapBtn.disabled = true;
-    sidebar.style.right = "-320px";
+    walletBtn.textContent = 'Connect Wallet';
   }
 
   async function setupProvider() {
-    try {
-      const metaChainIdHex = await window.ethereum.request({ method: "eth_chainId" });
-      const metaChainId = parseInt(metaChainIdHex, 16);
-      const selectedChainId = getChainIdByChainName(currentChain);
-
-      if (metaChainId === selectedChainId) {
-        provider = new ethers.providers.Web3Provider(window.ethereum);
-      } else {
-        const rpcUrl = rpcMap[currentChain];
-        if (!rpcUrl) throw new Error("RPC URL ไม่ถูกต้องสำหรับ chain นี้");
-        provider = new ethers.providers.JsonRpcProvider(rpcUrl);
-      }
-    } catch (e) {
-      // fallback ใช้ provider ของ MetaMask เสมอ
-      provider = new ethers.providers.Web3Provider(window.ethereum);
+    const rpcUrl = rpcMap[currentChain];
+    if (!rpcUrl) return;
+    provider = new ethers.providers.JsonRpcProvider(rpcUrl);
+    if (userAddress && window.ethereum) {
+      signer = new ethers.providers.Web3Provider(window.ethereum).getSigner();
     }
   }
 
-  async function loadBalances() {
-    if (!userAddress || !provider) return;
-
-    balanceList.innerHTML = "กำลังโหลดยอดคงเหลือ...";
+  async function getEstimate() {
+    const amount = amountInput.value;
+    const tokenIn = tokenInSelect.value;
+    const tokenOut = tokenOutSelect.value;
+    if (!amount || !tokenIn || !tokenOut || tokenIn === tokenOut) {
+      estimateEl.textContent = '';
+      return;
+    }
 
     try {
-      const balance = await provider.getBalance(userAddress);
-      let tokenName = "ETH";
-      if (["polygon", "bsc", "arbitrum", "base", "linea", "pulsechain", "chronos"].includes(currentChain)) {
-        tokenName = currentChain === "bsc" ? "BNB" : (currentChain === "polygon" ? "MATIC" : "ETH");
-      }
-      const formatted = ethers.utils.formatEther(balance);
-      balanceList.innerHTML = `<p><strong>${tokenName}:</strong> ${formatted}</p>`;
+      const amountWei = ethers.utils.parseUnits(amount, 18);
+      const url = `${ZEROX_API_BASE}/swap/v1/quote?buyToken=${tokenOut}&sellToken=${tokenIn}&sellAmount=${amountWei}`;
+      const res = await fetch(url);
+      const data = await res.json();
+
+      const buyAmount = ethers.utils.formatUnits(data.buyAmount, 18);
+      estimateEl.textContent = `Estimated: ${buyAmount} ${tokenOut}`;
     } catch (err) {
-      balanceList.innerHTML = "เกิดข้อผิดพลาดในการโหลดยอดคงเหลือ";
-      console.error(err);
+      console.error('Estimate error:', err);
+      estimateEl.textContent = 'ไม่สามารถประเมินราคาได้';
     }
   }
 
-  function toggleSidebar() {
-    sidebar.style.right = sidebar.style.right === "0px" ? "-320px" : "0px";
+  async function executeSwap() {
+    const amount = amountInput.value;
+    const tokenIn = tokenInSelect.value;
+    const tokenOut = tokenOutSelect.value;
+    const slippage = parseFloat(slippageInput.value || '1');
+    if (!userAddress || !amount || !tokenIn || !tokenOut || tokenIn === tokenOut) return;
+
+    try {
+      const amountWei = ethers.utils.parseUnits(amount, 18);
+      const url = `${ZEROX_API_BASE}/swap/v1/quote?buyToken=${tokenOut}&sellToken=${tokenIn}&sellAmount=${amountWei}&slippagePercentage=${slippage / 100}&takerAddress=${userAddress}`;
+
+      const res = await fetch(url);
+      const data = await res.json();
+
+      const tx = await signer.sendTransaction({
+        to: data.to,
+        data: data.data,
+        value: data.value ? ethers.BigNumber.from(data.value) : undefined,
+        gasLimit: data.gas || 300000,
+      });
+
+      console.log('Swap success:', tx.hash);
+      alert('Swap สำเร็จ! Tx: ' + tx.hash);
+    } catch (err) {
+      console.error('Swap error:', err);
+      alert('เกิดข้อผิดพลาดในการ Swap');
+    }
   }
 
-  function getChainIdByChainName(chainName) {
-    const map = {
-      ethereum: 1,
-      polygon: 137,
-      bsc: 56,
-      arbitrum: 42161,
-      base: 8453,
-      linea: 59140,
-      pulsechain: 369,
-      chronos: 25,
-    };
-    return map[chainName] || 1;
-  }
-
-  function getChainNameByChainId(chainId) {
-    const map = {
-      1: "ethereum",
-      137: "polygon",
-      56: "bsc",
-      42161: "arbitrum",
-      8453: "base",
-      59140: "linea",
-      369: "pulsechain",
-      25: "chronos",
-    };
-    return map[chainId] || null;
+  function shortAddress(addr) {
+    return addr.slice(0, 6) + '...' + addr.slice(-4);
   }
 });
 
