@@ -7,13 +7,13 @@ document.addEventListener("DOMContentLoaded", () => {
   const walletAddressSidebar = document.getElementById('wallet-address-sidebar');
   const chainSelector = document.getElementById('chainSelector');
   const swapBtn = document.getElementById('swapBtn');
-  const amountInput = document.getElementById('amount');
-  const slippageInput = document.getElementById('slippage');
 
-  let provider, signer, userAddress;
+  let provider = null;
+  let signer = null;
+  let userAddress = null;
   let currentChain = chainSelector.value;
 
-  // Mapping chain name to RPC endpoints (ตัวอย่าง RPC ฟรี)
+  // RPC URL สำหรับแต่ละ chain
   const rpcMap = {
     polygon: "https://polygon-rpc.com",
     bsc: "https://bsc-dataseed.binance.org/",
@@ -25,7 +25,7 @@ document.addEventListener("DOMContentLoaded", () => {
     chronos: "https://mainnet.chronos.org",
   };
 
-  swapBtn.disabled = true; // ปิดปุ่ม swap ก่อนเชื่อมต่อ wallet
+  swapBtn.disabled = true; // ปิดปุ่มก่อนเชื่อมต่อ
 
   walletButton.onclick = async () => {
     if (!userAddress) {
@@ -36,38 +36,16 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   closeSidebarBtn.onclick = () => {
-    sidebar.style.right = '-320px';
+    sidebar.style.right = "-320px";
   };
 
-  chainSelector.addEventListener('change', async (e) => {
+  chainSelector.addEventListener("change", async (e) => {
     currentChain = e.target.value;
-    console.log('เปลี่ยน Chain เป็น:', currentChain);
-
     if (userAddress) {
-      // สร้าง provider ใหม่ตาม chain ใหม่
       await setupProvider();
       await loadBalances();
     }
   });
-
-  // --- ฟังก์ชัน scroll ซ่อน/แสดงปุ่ม wallet กับ chain selector ---
-  let lastScrollY = window.scrollY;
-  const topButtons = document.querySelector('.top-right-buttons');
-
-  window.addEventListener('scroll', () => {
-    const currentScrollY = window.scrollY;
-    if (currentScrollY > lastScrollY) {
-      // scroll ลง → ซ่อนปุ่ม
-      topButtons.style.opacity = '0';
-      topButtons.style.pointerEvents = 'none';
-    } else {
-      // scroll ขึ้น → แสดงปุ่ม
-      topButtons.style.opacity = '1';
-      topButtons.style.pointerEvents = 'auto';
-    }
-    lastScrollY = currentScrollY;
-  });
-  // -----------------------------------------------------------
 
   async function connectWallet() {
     if (!window.ethereum) {
@@ -76,7 +54,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     try {
-      // ขอสิทธิ์เชื่อมต่อ wallet
       await window.ethereum.request({ method: "eth_requestAccounts" });
       await setupProvider();
 
@@ -87,13 +64,12 @@ document.addEventListener("DOMContentLoaded", () => {
       walletAddressSidebar.textContent = `🔗 ${userAddress}`;
       walletButton.textContent = "Disconnect Wallet";
       swapBtn.disabled = false;
-      sidebar.style.right = '0px';
+      sidebar.style.right = "0px";
 
-      // โหลด balance ครั้งแรก
       await loadBalances();
 
-      // ฟัง event เปลี่ยนบัญชีหรือ network จาก MetaMask
-      window.ethereum.on('accountsChanged', async (accounts) => {
+      // ฟัง event เปลี่ยนบัญชีหรือเชน
+      window.ethereum.on("accountsChanged", async (accounts) => {
         if (accounts.length === 0) {
           disconnectWallet();
         } else {
@@ -104,8 +80,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       });
 
-      window.ethereum.on('chainChanged', async (chainIdHex) => {
-        // ถ้า chain เปลี่ยนจาก MetaMask ให้เปลี่ยน select ด้วย
+      window.ethereum.on("chainChanged", async (chainIdHex) => {
         const chainId = parseInt(chainIdHex, 16);
         const newChain = getChainNameByChainId(chainId);
         if (newChain && newChain !== currentChain) {
@@ -115,10 +90,9 @@ document.addEventListener("DOMContentLoaded", () => {
           await loadBalances();
         }
       });
-
     } catch (err) {
-      console.error("Connect Wallet Error:", err);
       alert("ไม่สามารถเชื่อมต่อ Wallet ได้");
+      console.error(err);
     }
   }
 
@@ -129,32 +103,31 @@ document.addEventListener("DOMContentLoaded", () => {
     walletButton.textContent = "Connect Wallet";
     balanceList.innerHTML = "";
     swapBtn.disabled = true;
-    sidebar.style.right = '-320px';
+    sidebar.style.right = "-320px";
   }
 
   async function setupProvider() {
     try {
-      // ตรวจสอบว่า chain ที่ MetaMask เชื่อมต่ออยู่ตรงกับ selected หรือไม่
-      const metaChainId = await window.ethereum.request({ method: "eth_chainId" });
+      const metaChainIdHex = await window.ethereum.request({ method: "eth_chainId" });
+      const metaChainId = parseInt(metaChainIdHex, 16);
       const selectedChainId = getChainIdByChainName(currentChain);
 
-      if (parseInt(metaChainId, 16) === selectedChainId) {
+      if (metaChainId === selectedChainId) {
         provider = new ethers.providers.Web3Provider(window.ethereum);
       } else {
-        // ใช้ RPC ตรงตาม chainSelector
         const rpcUrl = rpcMap[currentChain];
         if (!rpcUrl) throw new Error("RPC URL ไม่ถูกต้องสำหรับ chain นี้");
         provider = new ethers.providers.JsonRpcProvider(rpcUrl);
       }
-    } catch (err) {
-      console.warn("setupProvider fallback:", err);
-      // fallback ใช้ window.ethereum provider เสมอ
+    } catch (e) {
+      // fallback ใช้ provider ของ MetaMask เสมอ
       provider = new ethers.providers.Web3Provider(window.ethereum);
     }
   }
 
   async function loadBalances() {
     if (!userAddress || !provider) return;
+
     balanceList.innerHTML = "กำลังโหลดยอดคงเหลือ...";
 
     try {
@@ -167,12 +140,12 @@ document.addEventListener("DOMContentLoaded", () => {
       balanceList.innerHTML = `<p><strong>${tokenName}:</strong> ${formatted}</p>`;
     } catch (err) {
       balanceList.innerHTML = "เกิดข้อผิดพลาดในการโหลดยอดคงเหลือ";
-      console.error("loadBalances error:", err);
+      console.error(err);
     }
   }
 
   function toggleSidebar() {
-    sidebar.style.right = (sidebar.style.right === '0px') ? '-320px' : '0px';
+    sidebar.style.right = sidebar.style.right === "0px" ? "-320px" : "0px";
   }
 
   function getChainIdByChainName(chainName) {
@@ -202,8 +175,8 @@ document.addEventListener("DOMContentLoaded", () => {
     };
     return map[chainId] || null;
   }
-
 });
+
 
 
 
