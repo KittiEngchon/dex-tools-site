@@ -164,3 +164,15 @@ document.getElementById('amount').oninput = estimatePrice;
 document.getElementById('fromToken').onchange = estimatePrice;
 document.getElementById('toToken').onchange = estimatePrice;
 document.getElementById('swapBtn').onclick = executeSwap;
+window.onload = () => {
+  document.getElementById('connectBtn').onclick = connectWallet;
+  document.getElementById('chainSelector').onchange = e => switchChain(e.target.value);
+  document.getElementById('amount').oninput = estimatePrice;
+  document.getElementById('fromToken').onchange = estimatePrice;
+  document.getElementById('toToken').onchange = estimatePrice;
+  document.getElementById('swapBtn').onclick = executeSwap;
+
+  // เรียกตั้งค่า Chain เริ่มต้น
+  switchChain('polygon');
+};
+
