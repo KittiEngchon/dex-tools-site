@@ -1,70 +1,41 @@
 body {
   font-family: 'Kanit', sans-serif;
-  background: #121212;
-  color: #eee;
-  margin: 0; padding: 0;
+  background: #ffe4f0;
+  color: #d6336c;
 }
 
+.top-right-buttons button,
+.top-right-buttons select {
+  background: #ff69b4;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 15px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.top-right-buttons button:hover,
+.top-right-buttons select:hover {
+  background: #ff3d91;
+}
+
+/* ปรับตำแหน่งสลับปุ่ม Connect Wallet กับ Chain Selector */
 .top-right-buttons {
   position: fixed;
   top: 10px;
   right: 10px;
   display: flex;
-  gap: 8px;
-  z-index: 100;
+  gap: 10px;
+  z-index: 1000;
 }
 
-.glow {
-  background: #222;
-  border: none;
-  padding: 8px 12px;
-  border-radius: 6px;
-  color: #0ff;
-  cursor: pointer;
-  box-shadow: 0 0 8px #0ff;
-  font-weight: bold;
+.top-right-buttons button {
+  order: 2; /* ให้ปุ่ม Connect Wallet อยู่ขวาสุด */
 }
 
-.dex-container {
-  max-width: 360px;
-  margin: 100px auto 30px;
-  background: #222;
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 0 20px #0ff55a88;
-  text-align: center;
-}
-
-#wallet-sidebar {
-  position: fixed;
-  top: 0; right: -320px;
-  width: 300px;
-  height: 100vh;
-  background: #111;
-  padding: 16px;
-  box-shadow: -2px 0 10px #0ff;
-  transition: right 0.3s ease;
-  color: #0ff;
-  overflow-y: auto;
-  z-index: 99;
-}
-
-#close-sidebar {
-  margin-top: 20px;
-  padding: 8px 12px;
-  border-radius: 6px;
-  border: none;
-  cursor: pointer;
-  background: #333;
-  color: #0ff;
-}
-
-input[type=number], select {
-  width: 100%;
-  padding: 10px;
-  margin: 8px 0 16px 0;
-  border-radius: 8px;
-  border: none;
-  font-size: 1.1rem;
+.top-right-buttons select {
+  order: 1; /* ให้ select อยู่ซ้ายมือ */
 }
 
