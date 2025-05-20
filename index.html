@@ -1,53 +1,342 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DEX Swap UI</title>
-  <link rel="stylesheet" href="styles.css">
-  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+  <meta charset="UTF-8" />
+  <title>DEX Swap</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- ฟอนต์ -->
+  <link href="https://fonts.googleapis.com/css2?family=Kanit&display=swap" rel="stylesheet" />
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    body {
+      font-family: 'Kanit', sans-serif;
+      margin: 0; padding: 0;
+      background: #121212;
+      color: #eee;
+    }
+    .top-right-buttons {
+      position: fixed;
+      top: 1rem;
+      right: 1rem;
+      display: flex;
+      gap: 1rem;
+      z-index: 1100;
+    }
+    button, select {
+      font-family: 'Kanit', sans-serif;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      font-size: 1rem;
+      background: #444;
+      color: #eee;
+      transition: background-color 0.3s ease;
+    }
+    button:hover, select:hover {
+      background: #666;
+    }
+    .dex-container {
+      max-width: 420px;
+      margin: 6rem auto 2rem auto;
+      background: #222;
+      padding: 1.5rem 2rem;
+      border-radius: 12px;
+      box-shadow: 0 0 20px #0ff;
+    }
+    .dex-container h2 {
+      margin-top: 0;
+      text-align: center;
+    }
+    .label {
+      margin-top: 1rem;
+      font-weight: 600;
+      font-size: 1.1rem;
+    }
+    input[type="text"], input[type="number"], select {
+      width: 100%;
+      padding: 0.6rem 0.8rem;
+      margin-top: 0.3rem;
+      font-size: 1rem;
+      border-radius: 6px;
+      border: 1px solid #555;
+      background: #333;
+      color: #eee;
+    }
+    #swapBtn {
+      margin-top: 2rem;
+      width: 100%;
+      font-size: 1.25rem;
+      background: #0ff;
+      color: #000;
+      font-weight: 700;
+      border-radius: 10px;
+      transition: background-color 0.3s ease;
+    }
+    #swapBtn:hover {
+      background: #0cc;
+    }
+    /* Sidebar */
+    #wallet-sidebar {
+      position: fixed;
+      top: 0;
+      right: -320px;
+      width: 320px;
+      height: 100vh;
+      background: #222;
+      color: #eee;
+      padding: 1rem;
+      box-shadow: -3px 0 10px rgba(0,0,0,0.7);
+      transition: right 0.3s ease;
+      overflow-y: auto;
+      z-index: 1200;
+    }
+    #wallet-sidebar h3 {
+      margin-top: 0;
+      margin-bottom: 1rem;
+      border-bottom: 1px solid #444;
+      padding-bottom: 0.5rem;
+    }
+    #balance-list p {
+      margin: 0.3rem 0;
+      font-size: 1rem;
+    }
+    #close-sidebar {
+      margin-top: 1rem;
+      padding: 0.5rem 1rem;
+      background: #555;
+      border: none;
+      color: white;
+      cursor: pointer;
+      border-radius: 6px;
+      width: 100%;
+    }
+  </style>
 </head>
+
 <body>
-  <div class="top-bar">
-    <div id="wallet-address">⛔ ยังไม่ได้เชื่อมต่อ</div>
-    <div class="top-right-buttons">
-      <select id="chainSelector">
-        <option value="polygon">Polygon</option>
-        <option value="bsc">BSC</option>
-        <option value="ethereum">Ethereum</option>
-        <option value="arbitrum">Arbitrum</option>
-        <option value="base">Base</option>
-        <option value="linea">Linea</option>
-        <option value="pulsechain">PulseChain</option>
-        <option value="chronos">Chronos</option>
-      </select>
-      <button id="wallet-button">Connect Wallet</button>
-    </div>
+
+  <!-- ปุ่มด้านขวาบน -->
+  <div class="top-right-buttons">
+    <button id="wallet-button">Connect Wallet</button>
+    <select id="chainSelector" class="glow" title="เลือกเครือข่าย">
+      <option value="polygon">Polygon</option>
+      <option value="bsc">BSC</option>
+      <option value="ethereum">Ethereum</option>
+      <option value="arbitrum">Arbitrum</option>
+      <option value="base">Base</option>
+      <option value="linea">Linea</option>
+      <option value="pulsechain">PulseChain</option>
+      <option value="chronos">Chronos</option>
+    </select>
   </div>
 
-  <div class="container">
-    <h1>🚀 DEX Token Swap</h1>
-    <div class="swap-box">
-      <label for="amount">จำนวนที่ต้องการ Swap</label>
-      <input type="number" id="amount" placeholder="0.0">
-      <label for="slippage">Slippage (%)</label>
-      <input type="number" id="slippage" value="1.0" step="0.1">
-      <button id="swapBtn">Swap Now</button>
+  <!-- กล่องหลัก -->
+  <div class="dex-container">
+    <h2>🔁 DEX Swap</h2>
+    <p id="wallet-address">⛔ ยังไม่ได้เชื่อมต่อ</p>
+
+    <div class="label">🪙 จากเหรียญ</div>
+    <select id="fromToken"></select>
+    <input type="text" id="fromAddress" placeholder="หรือวางที่อยู่ token" />
+
+    <div class="label">➡️ ไปยังเหรียญ</div>
+    <select id="toToken"></select>
+    <input type="text" id="toAddress" placeholder="หรือวางที่อยู่ token" />
+
+    <div class="label">💸 จำนวนเหรียญที่ต้องการแลก</div>
+    <input type="number" id="amount" placeholder="จำนวน..." />
+
+    <div class="label">⚙️ Slippage (%)</div>
+    <input type="number" id="slippage" placeholder="เช่น 1" value="1" />
+
+    <div id="token-list">กำลังโหลดข้อมูลเหรียญ...</div>
+
+    <div id="add-token-wrapper">
+      <!-- ดึง UI จาก add-token.html ได้ผ่าน fetch หรือคัดมาวางตรงนี้ -->
     </div>
-    <div class="balance-area">
-      <h3>ยอดคงเหลือ</h3>
-      <div id="balance-list"></div>
-    </div>
+
+    <button id="swapBtn">🔄 SWAP</button>
   </div>
 
-  <div id="wallet-sidebar" class="sidebar">
-    <button id="close-sidebar">❌</button>
-    <div class="sidebar-content">
-      <h2>Wallet Info</h2>
-      <p id="wallet-address-sidebar"></p>
-      <div id="balance-list"></div>
-    </div>
+  <!-- Sidebar Wallet -->
+  <div id="wallet-sidebar" aria-label="Wallet balances sidebar" role="region" aria-hidden="true">
+    <h3>Wallet Balances</h3>
+    <div id="balance-list">Loading...</div>
+    <button id="close-sidebar">Close</button>
   </div>
+
+  <!-- JS Libs -->
+  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+  <!-- Custom Scripts -->
+  <script src="ui-utils.js"></script>
+  <script src="import-token.js"></script>
+  <script src="add-token.js"></script>
+  <script src="coingecko.js"></script>
+
+  <!-- Wallet & UI Management Script -->
+  <script>
+    let provider;
+    let signer;
+    let userAddress;
+    let isConnected = false;
+
+    const walletButton = document.getElementById('wallet-button');
+    const sidebar = document.getElementById('wallet-sidebar');
+    const balanceList = document.getElementById('balance-list');
+    const closeSidebarBtn = document.getElementById('close-sidebar');
+    const walletAddressEl = document.getElementById('wallet-address');
+
+    walletButton.onclick = async () => {
+      if (!isConnected) {
+        await connectWallet();
+      } else {
+        // toggle sidebar open/close
+        if (sidebar.style.right === '0px') {
+          closeSidebar();
+        } else {
+          openSidebar();
+        }
+      }
+    };
+
+    closeSidebarBtn.onclick = closeSidebar;
+
+    async function connectWallet() {
+      try {
+        if (!window.ethereum) {
+          alert('กรุณาติดตั้ง MetaMask');
+          return;
+        }
+        provider = new ethers.providers.Web3Provider(window.ethereum);
+        await provider.send("eth_requestAccounts", []);
+        signer = provider.getSigner();
+        userAddress = await signer.getAddress();
+        isConnected = true;
+        walletButton.textContent = 'Disconnect Wallet';
+        walletAddressEl.textContent = `🔗 ${userAddress}`;
+        openSidebar();
+        loadBalances();
+        // listen for account or network changes
+        setupListeners();
+      } catch (err) {
+        console.error('Connect Wallet Error:', err);
+        alert('เกิดข้อผิดพลาดในการเชื่อมต่อ Wallet');
+      }
+    }
+
+    function disconnectWallet() {
+      provider = null;
+      signer = null;
+      userAddress = null;
+      isConnected = false;
+      walletButton.textContent = 'Connect Wallet';
+      walletAddressEl.textContent = '⛔ ยังไม่ได้เชื่อมต่อ';
+      balanceList.innerHTML = '';
+      closeSidebar();
+      removeListeners();
+    }
+
+    function openSidebar() {
+      sidebar.style.right = '0px';
+      sidebar.setAttribute('aria-hidden', 'false');
+      if (isConnected) loadBalances();
+    }
+
+    function closeSidebar() {
+      sidebar.style.right = '-320px';
+      sidebar.setAttribute('aria-hidden', 'true');
+    }
+
+    async function loadBalances() {
+      if (!userAddress) return;
+
+      balanceList.innerHTML = 'Loading...';
+
+      try {
+        const balanceMatic = await provider.getBalance(userAddress);
+        const balanceMaticFormatted = ethers.utils.formatEther(balanceMatic);
+
+        // ตัวอย่าง token list (ปรับตามของคุณ)
+        const tokens = [
+          { symbol: 'MATIC', address: null, decimals: 18 },
+          { symbol: 'COM', address: '0x83eac303EED75656297868A463603edaabe0DAA2', decimals: 2 },
+          { symbol: 'PRE', address: '0x057041064e59059a74719c6f590e2ebf45a05f77', decimals: 2 },
+          // เพิ่มเติมตามต้องการ
+        ];
+
+        let html = `<p><strong>MATIC:</strong> ${balanceMaticFormatted}</p>`;
+
+        for (const token of tokens) {
+          if (!token.address) continue; // MATIC ไม่มี contract address
+
+          try {
+            const tokenContract = new ethers.Contract(token.address, [
+              "function balanceOf(address) view returns (uint256)",
+              "function decimals() view returns (uint8)",
+            ], provider);
+
+            const balanceRaw = await tokenContract.balanceOf(userAddress);
+            const decimals = token.decimals || await tokenContract.decimals();
+            const balanceFormatted = ethers.utils.formatUnits(balanceRaw, decimals);
+
+            html += `<p><strong>${token.symbol}:</strong> ${balanceFormatted}</p>`;
+          } catch {
+            html += `<p><strong>${token.symbol}:</strong> Error loading balance</p>`;
+          }
+        }
+
+        balanceList.innerHTML = html;
+
+      } catch (err) {
+        balanceList.innerHTML = 'Error loading balances';
+        console.error(err);
+      }
+    }
+
+    // สร้างตัวแปรเก็บ listener function สำหรับลบเมื่อ disconnect
+    let ethereumListeners = [];
+
+    function setupListeners() {
+      if (!window.ethereum) return;
+
+      // account changed
+      const handleAccountsChanged = (accounts) => {
+        if (accounts.length === 0) {
+          // user disconnected wallet externally
+          disconnectWallet();
+        } else {
+          userAddress = accounts[0];
+          walletAddressEl.textContent = `🔗 ${userAddress}`;
+          loadBalances();
+        }
+      };
+      window.ethereum.on('accountsChanged', handleAccountsChanged);
+      ethereumListeners.push(['accountsChanged', handleAccountsChanged]);
+
+      // chain changed
+      const handleChainChanged = (chainId) => {
+        // reload page หรือ รีโหลด balances ก็ได้
+        console.log('Chain changed to:', chainId);
+        loadBalances();
+      };
+      window.ethereum.on('chainChanged', handleChainChanged);
+      ethereumListeners.push(['chainChanged', handleChainChanged]);
+    }
+
+    function removeListeners() {
+      if (!window.ethereum) return;
+      for (const [event, handler] of ethereumListeners) {
+        window.ethereum.removeListener(event, handler);
+      }
+      ethereumListeners = [];
+    }
+  </script>
 
   <script src="dexswap-v4.js"></script>
 </body>
