@@ -7,17 +7,24 @@ const CHAINS = {
 };
 
 async function connectWallet() {
-  if (!window.ethereum || !window.ethereum.isMetaMask) {
-    alert('❌ กรุณาติดตั้งหรือเปิดใช้งาน MetaMask');
-    return;
-  }
-  
-  provider = new ethers.providers.Web3Provider(window.ethereum);
-  await window.ethereum.request({ method: 'eth_requestAccounts' });
+  if (typeof window.ethereum !== 'undefined') {
+    try {
+      const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+      const address = accounts[0];
 
-  signer = provider.getSigner();
-  const address = await signer.getAddress();
-  document.getElementById('connectBtn').innerText = '✅ ' + address.slice(0, 6) + '...' + address.slice(-4);
+      document.getElementById('connectBtn').innerText = '✅ ' + address.slice(0, 6) + '...' + address.slice(-4);
+      document.getElementById('wallet-address').textContent = "เชื่อมต่อแล้ว: " + address;
+
+      provider = new ethers.providers.Web3Provider(window.ethereum);
+      signer = provider.getSigner();
+    } catch (err) {
+      console.error('❌ เกิดข้อผิดพลาดในการเชื่อมต่อ:', err);
+      alert("การเชื่อมต่อถูกยกเลิก");
+    }
+  } else {
+    alert("กรุณาติดตั้ง MetaMask ก่อนใช้งาน");
+    window.open("https://metamask.io/download.html", "_blank");
+  }
 }
 
 async function switchChain(chainKey) {
