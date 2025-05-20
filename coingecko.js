@@ -29,3 +29,5 @@ async function fetchCryptoData() {
 
 // โหลดข้อมูลเมื่อเปิดเว็บ
 window.onload = fetchCryptoData;
+// โหลดข้อมูลเมื่อเปิดเว็บ
+window.onload = fetchCryptoData;
