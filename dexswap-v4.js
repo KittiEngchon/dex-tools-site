@@ -90,6 +90,7 @@ async function estimatePrice() {
 
 window.onload = () => {
   loadChains();
+  fetchCryptoData(); // โหลดข้อมูลเหรียญจาก CoinGecko
   document.getElementById('connectBtn').onclick = connectWallet;
   document.getElementById('chainSelector').onchange = e => switchChain(e.target.value);
   document.getElementById('amount').oninput = estimatePrice;
