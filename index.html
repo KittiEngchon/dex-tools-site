@@ -69,6 +69,11 @@
       text-align: center;
       font-weight: bold;
     }
+     body { font-family: 'Kanit', sans-serif; text-align: center; }
+    .crypto-container { display: flex; flex-direction: column; gap: 20px; align-items: center; }
+    .crypto-card { padding: 20px; border-radius: 12px; background: #f4f4f4; width: 300px; text-align: center; }
+    .crypto-img { width: 60px; height: 60px; }
+    .price { font-size: 20px; font-weight: bold; }
   </style>
 </head>
 <body>
@@ -94,7 +99,7 @@
     <div class="label">⚙️ Slippage (%)</div>
     <input type="number" id="slippage" placeholder="เช่น 1" value="1">
 
-    <div id="priceEstimate">💰 ได้รับโดยประมาณ: -</div>
+    <div id="crypto-list"></div>
 
     <button id="swapBtn">🔄 SWAP</button>
   </div>
@@ -105,7 +110,9 @@
   <script src="dexswap-v4.js"></script>
 </body>
 </html>
+  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
   <script src="dexswap-v4.js"></script>
+  <script src="coingecko.js"></script> <!-- ไฟล์แยกสำหรับ CoinGecko -->
 </body>
 </html>
