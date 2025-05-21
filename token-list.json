@@ -1,5 +1,11 @@
 [
   {
+    "symbol": "POL",
+    "name": "Polygon Ecosystem Token",
+    "address": "0x455e53CBB86018Ac2B8092FdCd39d8444aFFC3F6",
+    "decimals": 18
+  },
+  {
     "symbol": "COM",
     "name": "Commition",
     "address": "0x83eac303EED75656297868A463603edaabe0DAA2",
