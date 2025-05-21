@@ -1,3 +1,4 @@
+
 document.addEventListener("DOMContentLoaded", () => {
   const connectBtn = document.getElementById("connectBtn") || document.getElementById("wallet-button");
   const walletAddressEl = document.getElementById("wallet-address");
@@ -95,6 +96,11 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
+    if (!window.tokenList || !Array.isArray(window.tokenList)) {
+      alert("Token list ยังไม่โหลด กรุณารอสักครู่แล้วลองใหม่อีกครั้ง");
+      return;
+    }
+
     const fromTokenInfo = window.tokenList.find(t => t.address.toLowerCase() === fromTokenAddress.toLowerCase());
     if (!fromTokenInfo) {
       alert("ไม่พบข้อมูลเหรียญต้นทาง");
@@ -102,7 +108,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     const decimals = fromTokenInfo.decimals;
-    const routerAddress = "0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff"; // QuickSwap Router on Polygon
+    const routerAddress = "0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff";
     const routerABI = [
       "function swapExactTokensForTokens(uint amountIn, uint amountOutMin, address[] calldata path, address to, uint deadline) external returns (uint[] memory amounts)",
       "function getAmountsOut(uint amountIn, address[] memory path) public view returns (uint[] memory amounts)"
@@ -117,7 +123,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const amountIn = ethers.utils.parseUnits(amount, decimals);
     const allowance = await fromToken.allowance(userAddress, routerAddress);
-
     if (allowance.lt(amountIn)) {
       const approveTx = await fromToken.approve(routerAddress, ethers.constants.MaxUint256);
       await approveTx.wait();
@@ -126,7 +131,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const path = [fromTokenAddress, toTokenAddress];
     const amountsOut = await router.getAmountsOut(amountIn, path);
     const amountOutMin = amountsOut[1].mul(100 - slippage).div(100);
-    const deadline = Math.floor(Date.now() / 1000) + 60 * 10;
+    const deadline = Math.floor(Date.now() / 1000) + 600;
 
     const tx = await router.swapExactTokensForTokens(
       amountIn,
@@ -136,28 +141,13 @@ document.addEventListener("DOMContentLoaded", () => {
       deadline
     );
     await tx.wait();
-
     alert("✅ Swap สำเร็จ!");
   }
 
-  if (connectBtn) {
-    connectBtn.addEventListener("click", () => {
-      if (!isConnected) {
-        connectWallet();
-      } else {
-        disconnectWallet();
-      }
-    });
-  }
-
-  if (closeSidebarBtn) {
-    closeSidebarBtn.addEventListener("click", closeSidebar);
-  }
-
+  if (connectBtn) connectBtn.addEventListener("click", () => isConnected ? disconnectWallet() : connectWallet());
+  if (closeSidebarBtn) closeSidebarBtn.addEventListener("click", closeSidebar);
   const swapBtn = document.getElementById("swapBtn");
-  if (swapBtn) {
-    swapBtn.addEventListener("click", swap);
-  }
+  if (swapBtn) swapBtn.addEventListener("click", swap);
 
   if (window.ethereum) {
     window.ethereum.on("accountsChanged", (accounts) => {
@@ -169,10 +159,7 @@ document.addEventListener("DOMContentLoaded", () => {
         disconnectWallet();
       }
     });
-
-    window.ethereum.on("chainChanged", () => {
-      window.location.reload();
-    });
+    window.ethereum.on("chainChanged", () => window.location.reload());
   }
 });
 
