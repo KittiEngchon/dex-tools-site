@@ -1,41 +1,92 @@
+
 body {
-  font-family: 'Kanit', sans-serif;
-  background: #ffe4f0;
-  color: #d6336c;
-}
-
-.top-right-buttons button,
-.top-right-buttons select {
-  background: #ff69b4;
+  font-family: sans-serif;
+  margin: 0;
+  background: linear-gradient(to right, #e91e63 20%, #121212 80%);
   color: white;
-  border: none;
-  border-radius: 8px;
-  padding: 10px 15px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
+  overflow-x: hidden;
 }
-
-.top-right-buttons button:hover,
-.top-right-buttons select:hover {
-  background: #ff3d91;
-}
-
-/* ปรับตำแหน่งสลับปุ่ม Connect Wallet กับ Chain Selector */
 .top-right-buttons {
   position: fixed;
-  top: 10px;
-  right: 10px;
+  top: 1rem;
+  right: 1rem;
   display: flex;
-  gap: 10px;
-  z-index: 1000;
+  gap: 1rem;
 }
-
-.top-right-buttons button {
-  order: 2; /* ให้ปุ่ม Connect Wallet อยู่ขวาสุด */
+.nav-menu {
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  display: flex;
+  gap: 1rem;
 }
-
-.top-right-buttons select {
-  order: 1; /* ให้ select อยู่ซ้ายมือ */
+.nav-menu button, #wallet-button, select, #swapBtn {
+  background: #e91e63;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 6px;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
 }
-
+.nav-menu button.active {
+  background: #ad1457;
+}
+.tab-content {
+  margin-top: 5rem;
+}
+.dex-container {
+  max-width: 400px;
+  margin: 3rem auto;
+  background: #1e1e1e;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 0 20px rgba(233, 30, 99, 0.5);
+}
+.label {
+  margin-top: 1rem;
+}
+input[type="text"], input[type="number"] {
+  width: 100%;
+  padding: 0.6rem;
+  border: none;
+  margin-top: 0.3rem;
+  border-radius: 6px;
+}
+#tokenModal {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0,0,0,0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+.modal-content {
+  background: #222;
+  padding: 1rem;
+  border-radius: 10px;
+  width: 90%;
+  max-width: 400px;
+}
+#tokenListPopup div {
+  padding: 0.5rem;
+  border-bottom: 1px solid #444;
+  cursor: pointer;
+}
+#tokenListPopup div:hover {
+  background: #333;
+}
+#wallet-sidebar {
+  position: fixed;
+  right: -320px;
+  top: 0;
+  width: 320px;
+  height: 100vh;
+  background: #222;
+  padding: 1rem;
+  transition: right 0.3s ease;
+  z-index: 1001;
+}
