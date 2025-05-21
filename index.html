@@ -341,5 +341,42 @@
   </script>
 
   <script src="dexswap-v4.js"></script>
+  <script>
+  // รายการเหรียญที่ใช้ (สามารถแก้ไขเพิ่มได้)
+  const tokenList = [
+    { symbol: "COM", address: "0x83eac303EED75656297868A463603edaabe0DAA2", decimals: 2 },
+    { symbol: "PRE", address: "0x057041064e59059a74719c6f590e2ebf45a05f77", decimals: 2 },
+    { symbol: "BOT", address: "0xa8ee2f093b0c4b22c972663e04be2edf4fa57e61", decimals: 2 },
+    { symbol: "VOLT", address: "0xca2c4aC4FEfE6aD28030037F84e03DF5b9D883F4", decimals: 2 },
+    { symbol: "PER", address: "0x7f8791f5ab0599C57051C999eD72862D68f4Cc41", decimals: 2 },
+    { symbol: "ADV", address: "0x9cf1556d51Bd9f95b5196302C6490A8560d7a7ff", decimals: 2 },
+    { symbol: "Zen", address: "0x..." },
+    { symbol: "ZION", address: "0x..." },
+    { symbol: "Gravity", address: "0x..." },
+    { symbol: "Extreme", address: "0x..." },
+    { symbol: "Ama", address: "0x..." }
+  ];
+
+  // ฟังก์ชันแสดงรายการใน select
+  function populateTokenDropdowns() {
+    const fromSelect = document.getElementById("fromToken");
+    const toSelect = document.getElementById("toToken");
+
+    tokenList.forEach(token => {
+      const option1 = document.createElement("option");
+      option1.value = token.address;
+      option1.textContent = `${token.symbol}`;
+      fromSelect.appendChild(option1);
+
+      const option2 = document.createElement("option");
+      option2.value = token.address;
+      option2.textContent = `${token.symbol}`;
+      toSelect.appendChild(option2);
+    });
+  }
+
+  // โหลดเมื่อ DOM พร้อม
+  document.addEventListener("DOMContentLoaded", populateTokenDropdowns);
+</script>
 </body>
 </html>
