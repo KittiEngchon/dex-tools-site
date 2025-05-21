@@ -284,7 +284,13 @@
             ], provider);
 
             const balanceRaw = await tokenContract.balanceOf(userAddress);
-            const decimals = token.decimals || await tokenContract.decimals();
+            // ดึง decimals จาก select option
+            const selectedFromToken = tokenList.find(t => t.address.toLowerCase() === fromTokenAddress.toLowerCase());
+            if (!selectedFromToken) {
+            alert("ไม่พบข้อมูลเหรียญต้นทาง");
+  return;
+}
+const decimals = selectedFromToken.decimals;
             const balanceFormatted = ethers.utils.formatUnits(balanceRaw, decimals);
 
             html += `<p><strong>${token.symbol}:</strong> ${balanceFormatted}</p>`;
