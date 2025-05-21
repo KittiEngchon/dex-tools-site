@@ -154,6 +154,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (accounts.length > 0) {
         userAddress = accounts[0];
         walletAddressEl.innerText = `🔗 ${userAddress}`;
+        document.getElementById("sidebar-wallet-address").textContent = `🔗 ${userAddress}`;
         loadBalances();
       } else {
         disconnectWallet();
