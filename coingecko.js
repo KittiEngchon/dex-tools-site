@@ -1,167 +1,57 @@
-document.addEventListener("DOMContentLoaded", () => {
-  const connectBtn = document.getElementById("connectBtn") || document.getElementById("wallet-button");
-  const walletAddressEl = document.getElementById("wallet-address");
-  const sidebar = document.getElementById("wallet-sidebar");
-  const balanceList = document.getElementById("balance-list");
-  const sidebarWalletAddress = document.getElementById("sidebar-wallet-address");
-  const closeSidebarBtn = document.getElementById("close-sidebar");
+async function loadTopTokens() {
+  const tokenListEl = document.getElementById("token-list");
+  const proxyUrl = "https://dex-coingecko-proxy.vercel.app/";
+  const fallbackUrl = "https://kittiengchon.github.io/dex-tools-site/token-list-pol.json";
 
-  let provider;
-  let signer;
-  let userAddress;
-  let isConnected = false;
-
-  async function connectWallet() {
+  try {
+    const res = await fetch(proxyUrl);
+    if (!res.ok) throw new Error("Proxy API Failed");
+    const data = await res.json();
+    renderTokenList(data, tokenListEl);
+  } catch (error) {
+    console.warn("โหลดจาก Proxy API ไม่ได้ → ใช้ fallback จาก token-list-pol.json แทน", error);
     try {
-      if (typeof window.ethereum === "undefined") {
-        alert("กรุณาติดตั้ง MetaMask");
-        return;
-      }
-
-      provider = new ethers.providers.Web3Provider(window.ethereum);
-      await provider.send("eth_requestAccounts", []);
-      signer = provider.getSigner();
-      userAddress = await signer.getAddress();
-      isConnected = true;
-
-      walletAddressEl.innerText = `🔗 ${userAddress}`;
-      sidebarWalletAddress.innerText = `🔗 ${userAddress}`;
-      connectBtn.innerText = "✅ Connected";
-      openSidebar();
-      loadBalances();
-    } catch (error) {
-      console.error("Connect Wallet Error:", error);
-      alert("เกิดปัญหาในการเชื่อม Wallet");
+      const fallbackRes = await fetch(fallbackUrl);
+      const fallbackData = await fallbackRes.json();
+      renderTokenList(fallbackData, tokenListEl);
+    } catch (fallbackError) {
+      console.error("โหลด fallback ก็ล้มเหลว:", fallbackError);
+      tokenListEl.innerHTML = "<p>ไม่สามารถโหลดข้อมูลเหรียญได้ในขณะนี้</p>";
     }
   }
+}
 
-  function disconnectWallet() {
-    provider = null;
-    signer = null;
-    userAddress = null;
-    isConnected = false;
+function renderTokenList(tokens, container) {
+  if (!Array.isArray(tokens)) return;
+  container.innerHTML = "";
 
-    walletAddressEl.innerText = "⛔ ยังไม่ได้เชื่อมต่อ";
-    sidebarWalletAddress.innerText = "⏳ รอกำหนดที่อยู่...";
-    connectBtn.innerText = "Connect Wallet";
-    balanceList.innerHTML = "";
-    closeSidebar();
-  }
+  window.tokenList = tokens;
 
-  function openSidebar() {
-    sidebar.style.right = "0px";
-  }
+  const fromSelect = document.getElementById("fromToken");
+  const toSelect = document.getElementById("toToken");
 
-  function closeSidebar() {
-    sidebar.style.right = "-320px";
-  }
+  fromSelect.innerHTML = "";
+  toSelect.innerHTML = "";
 
-  async function loadBalances() {
-    if (!userAddress || !window.tokenList) return;
-    balanceList.innerHTML = "Loading...";
+  tokens.forEach((token) => {
+    const item = document.createElement("div");
+    item.className = "token-item";
+    item.innerHTML = `
+      <strong>${token.symbol}</strong> - ${token.name}<br>
+      Address: <code>${token.address}</code>
+    `;
+    container.appendChild(item);
 
-    try {
-      const balanceMatic = await provider.getBalance(userAddress);
-      const balanceMaticFormatted = ethers.utils.formatEther(balanceMatic);
-      let html = `<p><strong>MATIC:</strong> ${balanceMaticFormatted}</p>`;
+    const option1 = document.createElement("option");
+    option1.value = token.address;
+    option1.textContent = `${token.symbol}`;
+    fromSelect.appendChild(option1);
 
-      for (const token of window.tokenList) {
-        try {
-          const tokenContract = new ethers.Contract(token.address, [
-            "function balanceOf(address) view returns (uint256)"
-          ], provider);
+    const option2 = document.createElement("option");
+    option2.value = token.address;
+    option2.textContent = `${token.symbol}`;
+    toSelect.appendChild(option2);
+  });
+}
 
-          const balanceRaw = await tokenContract.balanceOf(userAddress);
-          const decimals = token.decimals;
-          const balanceFormatted = ethers.utils.formatUnits(balanceRaw, decimals);
-          html += `<p><strong>${token.symbol}:</strong> ${balanceFormatted}</p>`;
-        } catch (err) {
-          html += `<p><strong>${token.symbol}:</strong> Error loading balance</p>`;
-        }
-      }
-
-      balanceList.innerHTML = html;
-    } catch (err) {
-      balanceList.innerHTML = "Error loading balances";
-      console.error(err);
-    }
-  }
-
-  async function swap() {
-    const fromTokenAddress = document.getElementById("fromToken").value;
-    const toTokenAddress = document.getElementById("toToken").value;
-    const amount = document.getElementById("amount").value;
-    const slippage = document.getElementById("slippage").value;
-
-    if (!fromTokenAddress || !toTokenAddress || !amount || !userAddress) {
-      alert("กรุณาเลือกเหรียญและกรอกจำนวนให้ครบ");
-      return;
-    }
-
-    if (!window.tokenList || !Array.isArray(window.tokenList)) {
-      alert("Token list ยังไม่โหลด กรุณารอสักครู่แล้วลองใหม่อีกครั้ง");
-      return;
-    }
-
-    const fromTokenInfo = window.tokenList.find(t => t.address.toLowerCase() === fromTokenAddress.toLowerCase());
-    if (!fromTokenInfo) {
-      alert("ไม่พบข้อมูลเหรียญต้นทาง");
-      return;
-    }
-
-    const decimals = fromTokenInfo.decimals;
-    const routerAddress = "0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff"; // QuickSwap
-    const routerABI = [
-      "function swapExactTokensForTokens(uint amountIn, uint amountOutMin, address[] calldata path, address to, uint deadline) external returns (uint[] memory amounts)",
-      "function getAmountsOut(uint amountIn, address[] memory path) public view returns (uint[] memory amounts)"
-    ];
-    const tokenABI = [
-      "function approve(address spender, uint256 amount) public returns (bool)",
-      "function allowance(address owner, address spender) public view returns (uint256)"
-    ];
-
-    const router = new ethers.Contract(routerAddress, routerABI, signer);
-    const fromToken = new ethers.Contract(fromTokenAddress, tokenABI, signer);
-
-    const amountIn = ethers.utils.parseUnits(amount, decimals);
-    const allowance = await fromToken.allowance(userAddress, routerAddress);
-    if (allowance.lt(amountIn)) {
-      const approveTx = await fromToken.approve(routerAddress, ethers.constants.MaxUint256);
-      await approveTx.wait();
-    }
-
-    const path = [fromTokenAddress, toTokenAddress];
-    const amountsOut = await router.getAmountsOut(amountIn, path);
-    const amountOutMin = amountsOut[1].mul(100 - slippage).div(100);
-    const deadline = Math.floor(Date.now() / 1000) + 600;
-
-    const tx = await router.swapExactTokensForTokens(
-      amountIn,
-      amountOutMin,
-      path,
-      userAddress,
-      deadline
-    );
-    await tx.wait();
-    alert("✅ Swap สำเร็จ!");
-  }
-
-  if (connectBtn) connectBtn.addEventListener("click", () => isConnected ? disconnectWallet() : connectWallet());
-  if (closeSidebarBtn) closeSidebarBtn.addEventListener("click", closeSidebar);
-  const swapBtn = document.getElementById("swapBtn");
-  if (swapBtn) swapBtn.addEventListener("click", swap);
-
-  if (window.ethereum) {
-    window.ethereum.on("accountsChanged", (accounts) => {
-      if (accounts.length > 0) {
-        userAddress = accounts[0];
-        walletAddressEl.innerText = `🔗 ${userAddress}`;
-        sidebarWalletAddress.innerText = `🔗 ${userAddress}`;
-        loadBalances();
-      } else {
-        disconnectWallet();
-      }
-    });
-    window.ethereum.on("chainChanged", () => window.location.reload());
-  }
-});
+document.addEventListener("DOMContentLoaded", loadTopTokens);
