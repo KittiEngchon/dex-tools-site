@@ -28,6 +28,9 @@ function renderTokenList(tokens, container) {
   if (!Array.isArray(tokens)) return;
   container.innerHTML = "";
 
+  // ✅ ให้ tokenList ใช้งานได้ใน global scope เช่นใน swap()
+  window.tokenList = tokens;
+
   // ดึง select element ของเหรียญ
   const fromSelect = document.getElementById("fromToken");
   const toSelect = document.getElementById("toToken");
@@ -60,4 +63,5 @@ function renderTokenList(tokens, container) {
 
 // โหลดเมื่อ DOM พร้อม
 document.addEventListener("DOMContentLoaded", loadTopTokens);
+
 
