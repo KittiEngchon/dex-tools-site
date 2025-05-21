@@ -122,7 +122,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const router = new ethers.Contract(routerAddress, routerABI, signer);
     const fromToken = new ethers.Contract(fromTokenAddress, tokenABI, signer);
 
-    const decimals = await fromToken.decimals();
+    const decimals = token.decimals; // ใช้จาก JSON เท่านั้น ไม่เรียกบน chain
     const amountIn = ethers.utils.parseUnits(amount, decimals);
 
     const allowance = await fromToken.allowance(userAddress, routerAddress);
