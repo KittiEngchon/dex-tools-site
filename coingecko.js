@@ -1,18 +1,16 @@
+
 async function loadTopTokens() {
   const tokenListEl = document.getElementById("token-list");
   const proxyUrl = "https://dex-coingecko-proxy.vercel.app/";
   const fallbackUrl = "https://kittiengchon.github.io/dex-tools-site/token-list.json";
 
   try {
-    // ลองโหลดจาก Proxy API ก่อน
     const res = await fetch(proxyUrl);
     if (!res.ok) throw new Error("Proxy API Failed");
     const data = await res.json();
-
     renderTokenList(data, tokenListEl);
   } catch (error) {
     console.warn("โหลดจาก Proxy API ไม่ได้ → ใช้ fallback จาก token-list.json แทน", error);
-
     try {
       const fallbackRes = await fetch(fallbackUrl);
       const fallbackData = await fallbackRes.json();
@@ -28,10 +26,9 @@ function renderTokenList(tokens, container) {
   if (!Array.isArray(tokens)) return;
   container.innerHTML = "";
 
-  // ✅ ให้ tokenList ใช้งานได้ใน global scope เช่นใน swap()
+  // ✅ Global token list
   window.tokenList = tokens;
 
-  // ดึง select element ของเหรียญ
   const fromSelect = document.getElementById("fromToken");
   const toSelect = document.getElementById("toToken");
 
@@ -39,7 +36,6 @@ function renderTokenList(tokens, container) {
   toSelect.innerHTML = "";
 
   tokens.forEach((token) => {
-    // แสดงรายการเหรียญใน token-list
     const item = document.createElement("div");
     item.className = "token-item";
     item.innerHTML = `
@@ -48,7 +44,6 @@ function renderTokenList(tokens, container) {
     `;
     container.appendChild(item);
 
-    // เพิ่มใน dropdown
     const option1 = document.createElement("option");
     option1.value = token.address;
     option1.textContent = `${token.symbol}`;
@@ -61,7 +56,6 @@ function renderTokenList(tokens, container) {
   });
 }
 
-// โหลดเมื่อ DOM พร้อม
 document.addEventListener("DOMContentLoaded", loadTopTokens);
 
 
