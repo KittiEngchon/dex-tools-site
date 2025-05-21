@@ -1,8 +1,10 @@
+# Create updated coingecko.js to use the new token-list-pol.json as fallback
 
+coingecko_js_updated = """
 async function loadTopTokens() {
   const tokenListEl = document.getElementById("token-list");
   const proxyUrl = "https://dex-coingecko-proxy.vercel.app/";
-  const fallbackUrl = "https://kittiengchon.github.io/dex-tools-site/token-list.json";
+  const fallbackUrl = "https://kittiengchon.github.io/dex-tools-site/token-list-pol.json"; // ใช้ POL แทน MATIC
 
   try {
     const res = await fetch(proxyUrl);
@@ -10,7 +12,7 @@ async function loadTopTokens() {
     const data = await res.json();
     renderTokenList(data, tokenListEl);
   } catch (error) {
-    console.warn("โหลดจาก Proxy API ไม่ได้ → ใช้ fallback จาก token-list.json แทน", error);
+    console.warn("โหลดจาก Proxy API ไม่ได้ → ใช้ fallback จาก token-list-pol.json แทน", error);
     try {
       const fallbackRes = await fetch(fallbackUrl);
       const fallbackData = await fallbackRes.json();
@@ -26,7 +28,7 @@ function renderTokenList(tokens, container) {
   if (!Array.isArray(tokens)) return;
   container.innerHTML = "";
 
-  // ✅ Global token list
+  // ✅ ให้ tokenList ใช้งานได้ global
   window.tokenList = tokens;
 
   const fromSelect = document.getElementById("fromToken");
@@ -57,5 +59,11 @@ function renderTokenList(tokens, container) {
 }
 
 document.addEventListener("DOMContentLoaded", loadTopTokens);
+"""
 
+# Save to file
+coingecko_updated_path = "/mnt/data/coingecko.js"
+with open(coingecko_updated_path, "w", encoding="utf-8") as f:
+    f.write(coingecko_js_updated)
 
+coingecko_updated_path
