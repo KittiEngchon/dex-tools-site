@@ -1,9 +1,12 @@
+# อัปเดตไฟล์ dexsawp-v4.js ให้แสดง wallet address ใน sidebar และไม่เรียก decimals จาก contract
 
+updated_code = """
 document.addEventListener("DOMContentLoaded", () => {
   const connectBtn = document.getElementById("connectBtn") || document.getElementById("wallet-button");
   const walletAddressEl = document.getElementById("wallet-address");
   const sidebar = document.getElementById("wallet-sidebar");
   const balanceList = document.getElementById("balance-list");
+  const sidebarWalletAddress = document.getElementById("sidebar-wallet-address");
   const closeSidebarBtn = document.getElementById("close-sidebar");
 
   let provider;
@@ -25,6 +28,7 @@ document.addEventListener("DOMContentLoaded", () => {
       isConnected = true;
 
       walletAddressEl.innerText = `🔗 ${userAddress}`;
+      sidebarWalletAddress.innerText = `🔗 ${userAddress}`;
       connectBtn.innerText = "✅ Connected";
       openSidebar();
       loadBalances();
@@ -41,6 +45,7 @@ document.addEventListener("DOMContentLoaded", () => {
     isConnected = false;
 
     walletAddressEl.innerText = "⛔ ยังไม่ได้เชื่อมต่อ";
+    sidebarWalletAddress.innerText = "⏳ รอกำหนดที่อยู่...";
     connectBtn.innerText = "Connect Wallet";
     balanceList.innerHTML = "";
     closeSidebar();
@@ -108,7 +113,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     const decimals = fromTokenInfo.decimals;
-    const routerAddress = "0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff";
+    const routerAddress = "0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff"; // QuickSwap
     const routerABI = [
       "function swapExactTokensForTokens(uint amountIn, uint amountOutMin, address[] calldata path, address to, uint deadline) external returns (uint[] memory amounts)",
       "function getAmountsOut(uint amountIn, address[] memory path) public view returns (uint[] memory amounts)"
@@ -154,7 +159,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (accounts.length > 0) {
         userAddress = accounts[0];
         walletAddressEl.innerText = `🔗 ${userAddress}`;
-        document.getElementById("sidebar-wallet-address").textContent = `🔗 ${userAddress}`;
+        sidebarWalletAddress.innerText = `🔗 ${userAddress}`;
         loadBalances();
       } else {
         disconnectWallet();
@@ -163,7 +168,15 @@ document.addEventListener("DOMContentLoaded", () => {
     window.ethereum.on("chainChanged", () => window.location.reload());
   }
 });
+"""
 
+file_path = "/mnt/data/dexswap-v4.js"
+with open(file_path, "w", encoding="utf-8") as f:
+    f.write(updated_code)
+
+file_path
+ผลลัพธ์
+'/mnt/data/dexswap-v4.js'
 
 
 
