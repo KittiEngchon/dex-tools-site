@@ -28,7 +28,15 @@ function renderTokenList(tokens, container) {
   if (!Array.isArray(tokens)) return;
   container.innerHTML = "";
 
+  // ดึง select element ของเหรียญ
+  const fromSelect = document.getElementById("fromToken");
+  const toSelect = document.getElementById("toToken");
+
+  fromSelect.innerHTML = "";
+  toSelect.innerHTML = "";
+
   tokens.forEach((token) => {
+    // แสดงรายการเหรียญใน token-list
     const item = document.createElement("div");
     item.className = "token-item";
     item.innerHTML = `
@@ -36,8 +44,20 @@ function renderTokenList(tokens, container) {
       Address: <code>${token.address}</code>
     `;
     container.appendChild(item);
+
+    // เพิ่มใน dropdown
+    const option1 = document.createElement("option");
+    option1.value = token.address;
+    option1.textContent = `${token.symbol}`;
+    fromSelect.appendChild(option1);
+
+    const option2 = document.createElement("option");
+    option2.value = token.address;
+    option2.textContent = `${token.symbol}`;
+    toSelect.appendChild(option2);
   });
 }
 
-// โหลดเมื่อหน้าเว็บพร้อม
+// โหลดเมื่อ DOM พร้อม
 document.addEventListener("DOMContentLoaded", loadTopTokens);
+
