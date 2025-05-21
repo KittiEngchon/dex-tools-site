@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const connectBtn = document.getElementById("connectBtn");
+  const connectBtn = document.getElementById("connectBtn") || document.getElementById("wallet-button");
   const walletAddressEl = document.getElementById("wallet-address");
   const sidebar = document.getElementById("wallet-sidebar");
   const balanceList = document.getElementById("balance-list");
@@ -66,7 +66,6 @@ document.addEventListener("DOMContentLoaded", () => {
         { symbol: "MATIC", address: null, decimals: 18 },
         { symbol: "COM", address: "0x83eac303EED75656297868A463603edaabe0DAA2", decimals: 2 },
         { symbol: "PRE", address: "0x057041064e59059a74719c6f590e2ebf45a05f77", decimals: 2 },
-        // เพิ่มเติมตามต้องการ
       ];
 
       let html = `<p><strong>MATIC:</strong> ${balanceMaticFormatted}</p>`;
@@ -97,6 +96,59 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  async function swap() {
+    const fromTokenAddress = document.getElementById("fromToken").value;
+    const toTokenAddress = document.getElementById("toToken").value;
+    const amount = document.getElementById("amount").value;
+    const slippage = document.getElementById("slippage").value;
+
+    if (!fromTokenAddress || !toTokenAddress || !amount || !userAddress) {
+      alert("กรุณาเลือกเหรียญและกรอกจำนวนให้ครบถ้วน");
+      return;
+    }
+
+    const routerAddress = "0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff";
+    const routerABI = [
+      "function swapExactTokensForTokens(uint amountIn, uint amountOutMin, address[] calldata path, address to, uint deadline) external returns (uint[] memory amounts)",
+      "function getAmountsOut(uint amountIn, address[] memory path) public view returns (uint[] memory amounts)"
+    ];
+
+    const tokenABI = [
+      "function approve(address spender, uint256 amount) public returns (bool)",
+      "function allowance(address owner, address spender) public view returns (uint256)",
+      "function decimals() view returns (uint8)"
+    ];
+
+    const router = new ethers.Contract(routerAddress, routerABI, signer);
+    const fromToken = new ethers.Contract(fromTokenAddress, tokenABI, signer);
+
+    const decimals = await fromToken.decimals();
+    const amountIn = ethers.utils.parseUnits(amount, decimals);
+
+    const allowance = await fromToken.allowance(userAddress, routerAddress);
+    if (allowance.lt(amountIn)) {
+      const approveTx = await fromToken.approve(routerAddress, ethers.constants.MaxUint256);
+      await approveTx.wait();
+    }
+
+    const path = [fromTokenAddress, toTokenAddress];
+    const amountsOut = await router.getAmountsOut(amountIn, path);
+    const amountOutMin = amountsOut[1].mul(100 - slippage).div(100);
+
+    const deadline = Math.floor(Date.now() / 1000) + 60 * 10;
+
+    const tx = await router.swapExactTokensForTokens(
+      amountIn,
+      amountOutMin,
+      path,
+      userAddress,
+      deadline
+    );
+    await tx.wait();
+
+    alert("Swap สำเร็จ!");
+  }
+
   connectBtn.addEventListener("click", () => {
     if (!isConnected) {
       connectWallet();
@@ -106,8 +158,8 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   closeSidebarBtn.addEventListener("click", closeSidebar);
+  document.getElementById("swapBtn").addEventListener("click", swap);
 
-  // Event listeners for account and chain changes
   if (window.ethereum) {
     window.ethereum.on("accountsChanged", (accounts) => {
       if (accounts.length > 0) {
@@ -124,6 +176,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 });
+
 
 
 
