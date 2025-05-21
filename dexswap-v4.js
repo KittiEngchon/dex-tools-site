@@ -1,6 +1,3 @@
-# อัปเดตไฟล์ dexsawp-v4.js ให้แสดง wallet address ใน sidebar และไม่เรียก decimals จาก contract
-
-updated_code = """
 document.addEventListener("DOMContentLoaded", () => {
   const connectBtn = document.getElementById("connectBtn") || document.getElementById("wallet-button");
   const walletAddressEl = document.getElementById("wallet-address");
@@ -168,15 +165,6 @@ document.addEventListener("DOMContentLoaded", () => {
     window.ethereum.on("chainChanged", () => window.location.reload());
   }
 });
-"""
-
-file_path = "/mnt/data/dexswap-v4.js"
-with open(file_path, "w", encoding="utf-8") as f:
-    f.write(updated_code)
-
-file_path
-ผลลัพธ์
-'/mnt/data/dexswap-v4.js'
 
 
 
