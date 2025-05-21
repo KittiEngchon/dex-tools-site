@@ -1,159 +1,63 @@
+
 <!DOCTYPE html>
-<html lang="th">
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>DEX Swap</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <!-- ฟอนต์ -->
-  <link href="https://fonts.googleapis.com/css2?family=Kanit&display=swap" rel="stylesheet" />
-
-  <!-- CSS -->
-  <link rel="stylesheet" href="style.css" />
-  <style>
-    body {
-      font-family: 'Kanit', sans-serif;
-      margin: 0; padding: 0;
-      background: #121212;
-      color: #eee;
-    }
-    .top-right-buttons {
-      position: fixed;
-      top: 1rem;
-      right: 1rem;
-      display: flex;
-      gap: 1rem;
-      z-index: 1100;
-    }
-    button, select {
-      font-family: 'Kanit', sans-serif;
-      padding: 0.5rem 1rem;
-      border-radius: 6px;
-      border: none;
-      cursor: pointer;
-      font-size: 1rem;
-      background: #444;
-      color: #eee;
-      transition: background-color 0.3s ease;
-    }
-    button:hover, select:hover {
-      background: #666;
-    }
-    .dex-container {
-      max-width: 420px;
-      margin: 6rem auto 2rem auto;
-      background: #222;
-      padding: 1.5rem 2rem;
-      border-radius: 12px;
-      box-shadow: 0 0 20px #0ff;
-    }
-    .dex-container h2 {
-      margin-top: 0;
-      text-align: center;
-    }
-    .label {
-      margin-top: 1rem;
-      font-weight: 600;
-      font-size: 1.1rem;
-    }
-    input[type="text"], input[type="number"], select {
-      width: 100%;
-      padding: 0.6rem 0.8rem;
-      margin-top: 0.3rem;
-      font-size: 1rem;
-      border-radius: 6px;
-      border: 1px solid #555;
-      background: #333;
-      color: #eee;
-    }
-    #swapBtn {
-      margin-top: 2rem;
-      width: 100%;
-      font-size: 1.25rem;
-      background: #0ff;
-      color: #000;
-      font-weight: 700;
-      border-radius: 10px;
-      transition: background-color 0.3s ease;
-    }
-    #swapBtn:hover {
-      background: #0cc;
-    }
-    #wallet-sidebar {
-      position: fixed;
-      top: 0;
-      right: -320px;
-      width: 320px;
-      height: 100vh;
-      background: #222;
-      color: #eee;
-      padding: 1rem;
-      box-shadow: -3px 0 10px rgba(0,0,0,0.7);
-      transition: right 0.3s ease;
-      overflow-y: auto;
-      z-index: 1200;
-    }
-    #wallet-sidebar h3 {
-      margin-top: 0;
-      margin-bottom: 1rem;
-      border-bottom: 1px solid #444;
-      padding-bottom: 0.5rem;
-    }
-    #balance-list p {
-      margin: 0.3rem 0;
-      font-size: 1rem;
-    }
-    #close-sidebar {
-      margin-top: 1rem;
-      padding: 0.5rem 1rem;
-      background: #555;
-      border: none;
-      color: white;
-      cursor: pointer;
-      border-radius: 6px;
-      width: 100%;
-    }
-  </style>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
+  <!-- Navigation Menu -->
+  <div class="nav-menu">
+    <button onclick="switchTab('swap')" class="active">Swap</button>
+    <button onclick="switchTab('pool')">Pool</button>
+    <button onclick="switchTab('farm')">Farm</button>
+  </div>
+
+  <!-- Wallet & Chain Select -->
   <div class="top-right-buttons">
-    <button id="wallet-button">Connect Wallet</button>
     <select id="chainSelector">
       <option value="polygon">Polygon</option>
       <option value="bsc">BSC</option>
-      <option value="ethereum">Ethereum</option>
-      <option value="arbitrum">Arbitrum</option>
-      <option value="base">Base</option>
-      <option value="linea">Linea</option>
-      <option value="pulsechain">PulseChain</option>
-      <option value="chronos">Chronos</option>
     </select>
+    <button id="wallet-button">Connect Wallet</button>
   </div>
 
-  <div class="dex-container">
-    <h2>🔁 DEX Swap</h2>
-    <p id="wallet-address">⛔ ยังไม่ได้เชื่อมต่อ</p>
+  <!-- Tab Content -->
+  <div id="tab-swap" class="tab-content">
+    <div class="dex-container">
+      <h2>🔁 DEX Swap</h2>
+      <p id="wallet-address">⛔ ยังไม่ได้เชื่อมต่อ</p>
 
-    <div class="label">🪙 จากเหรียญ</div>
-    <select id="fromToken"></select>
-    <input type="text" id="fromAddress" placeholder="หรือวางที่อยู่ token" />
+      <div class="label">🪙 จากเหรียญ</div>
+      <input type="text" id="fromTokenDisplay" readonly onclick="openTokenModal('from')" placeholder="เลือกเหรียญ">
+      <input type="hidden" id="fromToken">
 
-    <div class="label">➡️ ไปยังเหรียญ</div>
-    <select id="toToken"></select>
-    <input type="text" id="toAddress" placeholder="หรือวางที่อยู่ token" />
+      <div class="label">➡️ ไปยังเหรียญ</div>
+      <input type="text" id="toTokenDisplay" readonly onclick="openTokenModal('to')" placeholder="เลือกเหรียญ">
+      <input type="hidden" id="toToken">
 
-    <div class="label">💸 จำนวนเหรียญที่ต้องการแลก</div>
-    <input type="number" id="amount" placeholder="จำนวน..." />
+      <div class="label">💸 จำนวนเหรียญที่ต้องการแลก</div>
+      <input type="number" id="amount" placeholder="จำนวน...">
 
-    <div class="label">⚙️ Slippage (%)</div>
-    <input type="number" id="slippage" placeholder="เช่น 1" value="1" />
+      <div class="label">⚙️ Slippage (%)</div>
+      <input type="number" id="slippage" placeholder="เช่น 1" value="1">
 
-    <div id="token-list">กำลังโหลดข้อมูลเหรียญ...</div>
-
-    <button id="swapBtn">🔄 SWAP</button>
+      <button id="swapBtn">🔄 SWAP</button>
+    </div>
   </div>
 
+  <div id="tab-pool" class="tab-content" style="display: none;">
+    <div class="dex-container"><h2>💧 Pool (เร็วๆ นี้)</h2></div>
+  </div>
+
+  <div id="tab-farm" class="tab-content" style="display: none;">
+    <div class="dex-container"><h2>🌱 Farm (เร็วๆ นี้)</h2></div>
+  </div>
+
+  <!-- Wallet Sidebar -->
   <div id="wallet-sidebar">
     <h3>💼 Wallet Info</h3>
     <div id="sidebar-wallet-address">⏳ รอกำหนดที่อยู่...</div>
@@ -162,42 +66,16 @@
     <button id="close-sidebar">Close</button>
   </div>
 
-  <!-- JS Libraries -->
-  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+  <!-- Token Modal -->
+  <div id="tokenModal" class="modal" style="display:none;">
+    <div class="modal-content">
+      <input type="text" id="tokenSearch" placeholder="Search token name or address" oninput="filterTokens()" />
+      <div id="tokenListPopup"></div>
+    </div>
+  </div>
 
   <!-- Scripts -->
-  <script src="coingecko.js"></script>
-  <script src="dexswap-v4.js"></script>
-
-  <!-- Populate Token Dropdowns -->
-  <script>
-    function populateTokenDropdowns() {
-      const fromSelect = document.getElementById("fromToken");
-      const toSelect = document.getElementById("toToken");
-      const tokens = window.tokenList || [];
-
-      if (!Array.isArray(tokens)) return;
-
-      fromSelect.innerHTML = "";
-      toSelect.innerHTML = "";
-
-      tokens.forEach(token => {
-        const option1 = document.createElement("option");
-        option1.value = token.address;
-        option1.textContent = `${token.symbol}`;
-        fromSelect.appendChild(option1);
-
-        const option2 = document.createElement("option");
-        option2.value = token.address;
-        option2.textContent = `${token.symbol}`;
-        toSelect.appendChild(option2);
-      });
-    }
-
-    document.addEventListener("DOMContentLoaded", () => {
-      setTimeout(populateTokenDropdowns, 300);
-    });
-  </script>
-
+  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
