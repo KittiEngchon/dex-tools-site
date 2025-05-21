@@ -1,3 +1,4 @@
+html_content = """
 <!DOCTYPE html>
 <html lang="th">
 <head>
@@ -79,7 +80,6 @@
     #swapBtn:hover {
       background: #0cc;
     }
-    /* Sidebar */
     #wallet-sidebar {
       position: fixed;
       top: 0;
@@ -116,13 +116,11 @@
     }
   </style>
 </head>
-
 <body>
 
-  <!-- ปุ่มด้านขวาบน -->
   <div class="top-right-buttons">
     <button id="wallet-button">Connect Wallet</button>
-    <select id="chainSelector" class="glow" title="เลือกเครือข่าย">
+    <select id="chainSelector">
       <option value="polygon">Polygon</option>
       <option value="bsc">BSC</option>
       <option value="ethereum">Ethereum</option>
@@ -134,7 +132,6 @@
     </select>
   </div>
 
-  <!-- กล่องหลัก -->
   <div class="dex-container">
     <h2>🔁 DEX Swap</h2>
     <p id="wallet-address">⛔ ยังไม่ได้เชื่อมต่อ</p>
@@ -155,14 +152,9 @@
 
     <div id="token-list">กำลังโหลดข้อมูลเหรียญ...</div>
 
-    <div id="add-token-wrapper">
-      <!-- ดึง UI จาก add-token.html ได้ผ่าน fetch หรือคัดมาวางตรงนี้ -->
-    </div>
-
     <button id="swapBtn">🔄 SWAP</button>
   </div>
 
-  <!-- Sidebar Wallet -->
   <div id="wallet-sidebar">
     <h3>💼 Wallet Info</h3>
     <div id="sidebar-wallet-address">⏳ รอกำหนดที่อยู่...</div>
@@ -171,218 +163,50 @@
     <button id="close-sidebar">Close</button>
   </div>
 
-  <!-- JS Libs -->
+  <!-- JS Libraries -->
   <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
-  <!-- Custom Scripts -->
-  <script src="ui-utils.js"></script>
-  <script src="import-token.js"></script>
-  <script src="add-token.js"></script>
-  <script src="coingecko.js"></script>
+  <!-- Scripts -->
+  <script src="coingecko-fixed.js"></script>
+  <script src="dexswap-v4-final.js"></script>
 
-  <!-- Wallet & UI Management Script -->
+  <!-- Populate Token Dropdowns -->
   <script>
-    let provider;
-    let signer;
-    let userAddress;
-    let isConnected = false;
+    function populateTokenDropdowns() {
+      const fromSelect = document.getElementById("fromToken");
+      const toSelect = document.getElementById("toToken");
+      const tokens = window.tokenList || [];
 
-    const walletButton = document.getElementById('wallet-button');
-    const sidebar = document.getElementById('wallet-sidebar');
-    const balanceList = document.getElementById('balance-list');
-    const closeSidebarBtn = document.getElementById('close-sidebar');
-    const walletAddressEl = document.getElementById('wallet-address');
+      if (!Array.isArray(tokens)) return;
 
-    walletButton.onclick = async () => {
-      if (!isConnected) {
-        await connectWallet();
-      } else {
-        // toggle sidebar open/close
-        if (sidebar.style.right === '0px') {
-          closeSidebar();
-        } else {
-          openSidebar();
-        }
-      }
-    };
+      fromSelect.innerHTML = "";
+      toSelect.innerHTML = "";
 
-    closeSidebarBtn.onclick = closeSidebar;
+      tokens.forEach(token => {
+        const option1 = document.createElement("option");
+        option1.value = token.address;
+        option1.textContent = `${token.symbol}`;
+        fromSelect.appendChild(option1);
 
-    async function connectWallet() {
-      try {
-        if (!window.ethereum) {
-          alert('กรุณาติดตั้ง MetaMask');
-          return;
-        }
-        provider = new ethers.providers.Web3Provider(window.ethereum);
-        await provider.send("eth_requestAccounts", []);
-        signer = provider.getSigner();
-        userAddress = await signer.getAddress();
-        isConnected = true;
-        walletButton.textContent = 'Disconnect Wallet';
-        walletAddressEl.textContent = `🔗 ${userAddress}`;
-        openSidebar();
-        loadBalances();
-        // listen for account or network changes
-        setupListeners();
-      } catch (err) {
-        console.error('Connect Wallet Error:', err);
-        alert('เกิดข้อผิดพลาดในการเชื่อมต่อ Wallet');
-      }
+        const option2 = document.createElement("option");
+        option2.value = token.address;
+        option2.textContent = `${token.symbol}`;
+        toSelect.appendChild(option2);
+      });
     }
 
-    function disconnectWallet() {
-      provider = null;
-      signer = null;
-      userAddress = null;
-      isConnected = false;
-      walletButton.textContent = 'Connect Wallet';
-      walletAddressEl.textContent = '⛔ ยังไม่ได้เชื่อมต่อ';
-      balanceList.innerHTML = '';
-      closeSidebar();
-      removeListeners();
-    }
-
-    function openSidebar() {
-      sidebar.style.right = '0px';
-      sidebar.setAttribute('aria-hidden', 'false');
-      if (isConnected) loadBalances();
-    }
-
-    function closeSidebar() {
-      sidebar.style.right = '-320px';
-      sidebar.setAttribute('aria-hidden', 'true');
-    }
-
-    async function loadBalances() {
-      if (!userAddress) return;
-
-      balanceList.innerHTML = 'Loading...';
-
-      try {
-        const balanceMatic = await provider.getBalance(userAddress);
-        const balanceMaticFormatted = ethers.utils.formatEther(balanceMatic);
-
-        // ตัวอย่าง token list (ปรับตามของคุณ)
-        const tokens = [
-          { symbol: 'MATIC', address: null, decimals: 18 },
-          { symbol: 'COM', address: '0x83eac303EED75656297868A463603edaabe0DAA2', decimals: 2 },
-          { symbol: 'PRE', address: '0x057041064e59059a74719c6f590e2ebf45a05f77', decimals: 2 },
-          // เพิ่มเติมตามต้องการ
-        ];
-
-        let html = `<p><strong>MATIC:</strong> ${balanceMaticFormatted}</p>`;
-
-        for (const token of tokens) {
-          if (!token.address) continue; // MATIC ไม่มี contract address
-
-          try {
-            const tokenContract = new ethers.Contract(token.address, [
-              "function balanceOf(address) view returns (uint256)",
-              "function decimals() view returns (uint8)",
-            ], provider);
-
-            const balanceRaw = await tokenContract.balanceOf(userAddress);
-            // ดึง decimals จาก select option
-            const selectedFromToken = tokenList.find(t => t.address.toLowerCase() === fromTokenAddress.toLowerCase());
-            if (!selectedFromToken) {
-            alert("ไม่พบข้อมูลเหรียญต้นทาง");
-  return;
-}
-const decimals = selectedFromToken.decimals;
-            const balanceFormatted = ethers.utils.formatUnits(balanceRaw, decimals);
-
-            html += `<p><strong>${token.symbol}:</strong> ${balanceFormatted}</p>`;
-          } catch {
-            html += `<p><strong>${token.symbol}:</strong> Error loading balance</p>`;
-          }
-        }
-
-        balanceList.innerHTML = html;
-
-      } catch (err) {
-        balanceList.innerHTML = 'Error loading balances';
-        console.error(err);
-      }
-    }
-
-    // สร้างตัวแปรเก็บ listener function สำหรับลบเมื่อ disconnect
-    let ethereumListeners = [];
-
-    function setupListeners() {
-      if (!window.ethereum) return;
-
-      // account changed
-      const handleAccountsChanged = (accounts) => {
-        if (accounts.length === 0) {
-          // user disconnected wallet externally
-          disconnectWallet();
-        } else {
-          userAddress = accounts[0];
-          walletAddressEl.textContent = `🔗 ${userAddress}`;
-          loadBalances();
-        }
-      };
-      window.ethereum.on('accountsChanged', handleAccountsChanged);
-      ethereumListeners.push(['accountsChanged', handleAccountsChanged]);
-
-      // chain changed
-      const handleChainChanged = (chainId) => {
-        // reload page หรือ รีโหลด balances ก็ได้
-        console.log('Chain changed to:', chainId);
-        loadBalances();
-      };
-      window.ethereum.on('chainChanged', handleChainChanged);
-      ethereumListeners.push(['chainChanged', handleChainChanged]);
-    }
-
-    function removeListeners() {
-      if (!window.ethereum) return;
-      for (const [event, handler] of ethereumListeners) {
-        window.ethereum.removeListener(event, handler);
-      }
-      ethereumListeners = [];
-    }
+    document.addEventListener("DOMContentLoaded", () => {
+      setTimeout(populateTokenDropdowns, 300);
+    });
   </script>
 
-  <script src="dexswap-v4.js"></script>
-  <script>
-  // รายการเหรียญที่ใช้ (สามารถแก้ไขเพิ่มได้)
-  const tokenList = [
-    { symbol: "COM", address: "0x83eac303EED75656297868A463603edaabe0DAA2", decimals: 2 },
-    { symbol: "PRE", address: "0x057041064e59059a74719c6f590e2ebf45a05f77", decimals: 2 },
-    { symbol: "BOT", address: "0xa8ee2f093b0c4b22c972663e04be2edf4fa57e61", decimals: 2 },
-    { symbol: "VOLT", address: "0xca2c4aC4FEfE6aD28030037F84e03DF5b9D883F4", decimals: 2 },
-    { symbol: "PER", address: "0x7f8791f5ab0599C57051C999eD72862D68f4Cc41", decimals: 2 },
-    { symbol: "ADV", address: "0x9cf1556d51Bd9f95b5196302C6490A8560d7a7ff", decimals: 2 },
-    { symbol: "Zen", address: "0x..." },
-    { symbol: "ZION", address: "0x..." },
-    { symbol: "Gravity", address: "0x..." },
-    { symbol: "Extreme", address: "0x..." },
-    { symbol: "Ama", address: "0x..." }
-  ];
-
-  // ฟังก์ชันแสดงรายการใน select
-  function populateTokenDropdowns() {
-    const fromSelect = document.getElementById("fromToken");
-    const toSelect = document.getElementById("toToken");
-
-    tokenList.forEach(token => {
-      const option1 = document.createElement("option");
-      option1.value = token.address;
-      option1.textContent = `${token.symbol}`;
-      fromSelect.appendChild(option1);
-
-      const option2 = document.createElement("option");
-      option2.value = token.address;
-      option2.textContent = `${token.symbol}`;
-      toSelect.appendChild(option2);
-    });
-  }
-
-  // โหลดเมื่อ DOM พร้อม
-  document.addEventListener("DOMContentLoaded", populateTokenDropdowns);
-</script>
 </body>
 </html>
+"""
+
+# Save to file
+html_path = "/mnt/data/index-fixed.html"
+with open(html_path, "w", encoding="utf-8") as f:
+    f.write(html_content)
+
+html_path
